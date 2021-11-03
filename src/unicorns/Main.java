@@ -13,9 +13,6 @@ public class Main {
 	public static void main(String[] unicorns) {
 		Console.s.setTitle("4d Chess Without Multiverse Time Travel");
 		Console.s.println("4d Chess Without Multiverse Time Travel");
-		for (int i=0;i<4;i++) {
-			Console.s.println(Vector.getUnitVector(4).getSpds().i(i));
-		}
 		b.setUp();
 		Frame f=new Frame();
 		f.setLocationRelativeTo(null);

@@ -408,6 +408,14 @@ public class Piece {
 	}
 	
 	public Piece clone() {
-		return new Piece(this.pos.clone(),type);
+		Point pos=null;
+		if (this.pos!=null) {
+			pos=this.pos.clone();
+		}
+		return new Piece(pos,type);
+	}
+	
+	public void setPos(Point pos) {
+		this.pos=pos;
 	}
 }

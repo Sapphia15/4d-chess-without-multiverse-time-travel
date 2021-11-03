@@ -16,6 +16,7 @@ public class Board {
 	Board lastState=null;
 	Point ghost=null;
 	Piece ghostPawn=null;
+	char lastPieceMoved='x';
 	
 	public Board() {
 		
@@ -163,15 +164,16 @@ public class Board {
 	}
 	
 	public void move(Point p) {
+		
+		Board oldState=lastState.clone();
+		lastState=this.clone();
+		lastState.lastState=oldState.clone();//this will allow for any number of undos during analysis
+		lastMoveStart=selected.getPos();
 		ghost=null;
 		ghostPawn=null;
-		Board oldState=lastState;
-		lastState=this.clone();
-		lastState.lastState=oldState;//this will allow for any number of undos during analysis
-		lastMoveStart=selected.getPos();
 		lastMoveEnd=p;
 		selected.pos=p;
-		
+		lastPieceMoved=selected.getType();
 		selected.firstMove=false;
 	}
 	
@@ -198,17 +200,17 @@ public class Board {
 		} else {
 			this.lastMoveStart=null;
 		}
-		if (b.ghost!=null) {
-			this.ghost=b.ghost;
-		} else {
-			this.ghost=null;
+		this.ghost=b.ghost;
+		
+		this.lastPieceMoved=b.lastPieceMoved;
+		this.pieces.clear();
+		for (Piece p : b.pieces) {
+			Piece clone=p.clone();
+			if (b.ghostPawn!=null&&p.equals(b.ghostPawn)) {
+				this.ghostPawn=clone;
+			}
+			this.pieces.add(clone);
 		}
-		if (b.ghostPawn!=null) {
-			this.ghostPawn=b.ghostPawn;
-		} else {
-			this.ghostPawn=null;
-		}
-		this.pieces=(CopyOnWriteArrayList<Piece>) b.pieces.clone();
 		this.lastState=b.lastState.clone();
 	}
 	
@@ -221,15 +223,18 @@ public class Board {
 			cloneBoard.lastMoveStart=this.lastMoveStart.clone();
 		}
 		for (Piece p : pieces) {
-			cloneBoard.pieces.add(p.clone());
+			Piece clone=p.clone();
+			if (this.ghostPawn!=null&&p.equals(this.ghostPawn)) {
+				cloneBoard.ghostPawn=clone;
+			}
+			cloneBoard.pieces.add(clone);
 		}
 		
-		if (this.ghostPawn!=null) {
-			cloneBoard.ghostPawn=this.ghostPawn;
-		} else {
-			cloneBoard.ghostPawn=null;
+		if (this.ghost!=null) {
+			cloneBoard.ghost=this.ghost.clone();
 		}
-		cloneBoard.ghost=this.ghost;
+		
+		cloneBoard.lastPieceMoved=this.lastPieceMoved;
 		return cloneBoard;
 	}
 	
@@ -315,5 +320,13 @@ public class Board {
 	
 	public Point lastMoveEnd() {
 		return lastMoveEnd;
+	}
+	
+	public char lastPieceTypeMoved() {
+		return lastPieceMoved;
+	}
+	
+	public Piece getGhostPiece() {
+		return ghostPawn;
 	}
 }
