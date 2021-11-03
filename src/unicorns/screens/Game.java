@@ -79,8 +79,63 @@ public class Game extends Screen{
 		g.setFont(newFont);
 		g.drawString(space,10,sq);
 		
+		Piece selected=Main.b.getSelectedPiece();
+		if (selected!=null) {
+			int x=selected.getX();
+			int y=selected.getY();
+			int z=selected.getZ();
+			int w=selected.getW();
+			if (wPersp) {
+				y=3-y;
+				w=3-w;
+			} else {
+				x=3-x;
+				z=3-z;
+			}
+			g.setColor(new Color(255,255,100,100));
+			g.fillRect(offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4);
+		}
 		
+		Point lastMoveStart=Main.b.lastMoveStart();
 		
+		if (lastMoveStart!=null) {
+			
+			int x=(int)lastMoveStart.tuple.i(0);
+			int y=(int)lastMoveStart.tuple.i(1);
+			int z=(int)lastMoveStart.tuple.i(2);
+			int w=(int)lastMoveStart.tuple.i(3);
+			g.setColor(new Color(255,255,150));
+			
+			if (wPersp) {
+				y=3-y;
+				w=3-w;
+			} else {
+				x=3-x;
+				z=3-z;
+			}
+			
+			g.fillRect(offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4);
+		}
+		
+		Point lastMoveEnd=Main.b.lastMoveEnd();
+		if (lastMoveEnd!=null) {
+			
+			int x=(int)lastMoveEnd.tuple.i(0);
+			int y=(int)lastMoveEnd.tuple.i(1);
+			int z=(int)lastMoveEnd.tuple.i(2);
+			int w=(int)lastMoveEnd.tuple.i(3);
+			g.setColor(new Color(255,255,150));
+			
+			if (wPersp) {
+				y=3-y;
+				w=3-w;
+			} else {
+				x=3-x;
+				z=3-z;
+			}
+			
+			g.fillRect(offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4);
+		}
 		
 		for (Piece p : Main.b.getPieces()) {
 			int x=p.getX();

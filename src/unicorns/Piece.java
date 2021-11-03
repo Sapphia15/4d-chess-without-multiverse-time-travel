@@ -298,6 +298,26 @@ public class Piece {
 			break;
 			case "K":
 				//TODO king moves
+				for (Point move : getLegalMoves('D')) {
+					if (new Vector(move).$S$(vp).magnitude()<=2) {
+						moves.add(move);
+					}
+				}
+				for (Point move : getLegalMoves('B')) {
+					if (new Vector(move).$S$(vp).magnitude()<=Math.sqrt(2)) {
+						moves.add(move);
+					}
+				}
+				for (Point move : getLegalMoves('U')) {
+					if (new Vector(move).$S$(vp).magnitude()<=Math.sqrt(3)) {
+						moves.add(move);
+					}
+				}
+				for (Point move : getLegalMoves('R')) {
+					if (new Vector(move).$S$(vp).magnitude()<=1) {
+						moves.add(move);
+					}
+				}
 			break;
 			
 		}

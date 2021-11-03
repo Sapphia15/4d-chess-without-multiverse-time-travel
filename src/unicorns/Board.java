@@ -168,11 +168,15 @@ public class Board {
 		Board oldState=lastState;
 		lastState=this.clone();
 		lastState.lastState=oldState;//this will allow for any number of undos during analysis
+		lastMoveStart=selected.getPos();
+		lastMoveEnd=p;
 		selected.pos=p;
+		
 		selected.firstMove=false;
 	}
 	
 	public void secondPawnMove(Point p) {
+		lastMoveEnd=p;
 		ghost=selected.pos;
 		ghostPawn=selected;
 		selected.pos=p;
@@ -184,12 +188,12 @@ public class Board {
 	
 	public void setState(Board b) {
 		this.legalMoves=b.legalMoves.clone();
-		if (this.lastMoveEnd!=null) {
+		if (b.lastMoveEnd!=null) {
 			this.lastMoveEnd=b.lastMoveEnd.clone();
 		} else {
 			this.lastMoveEnd=null;
 		}
-		if (this.lastMoveStart!=null) {
+		if (b.lastMoveStart!=null) {
 			this.lastMoveStart=b.lastMoveStart.clone();
 		} else {
 			this.lastMoveStart=null;
@@ -303,5 +307,13 @@ public class Board {
 	
 	public boolean playerInCheckMate(boolean white) {
 		return !playerHasLegalMove(white)&&playerInCheck(white);
+	}
+	
+	public Point lastMoveStart() {
+		return lastMoveStart;
+	}
+	
+	public Point lastMoveEnd() {
+		return lastMoveEnd;
 	}
 }
