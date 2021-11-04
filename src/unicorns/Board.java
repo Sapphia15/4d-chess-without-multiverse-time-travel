@@ -290,16 +290,18 @@ public class Board {
 		testBoard.lastState=this.clone();
 		for (Piece p:testBoard.getPieces()) {
 			if (p.isWhite()==white) {
-				
+				Point start=p.pos.clone();
 				for (Point move:p.getLegalMoves(p.getType(),testBoard)) {
-					testBoard.selectPiece(p);
+					Piece testPiece=testBoard.pieceAt(start);
+					testBoard.selectPiece(testPiece);
 					Piece target=testBoard.pieceAt(move);
+					testBoard.move(move);
 					if (target!=null) {
-						if (target.isWhite()!=p.isWhite()) {
+						if (target.isWhite()!=testPiece.isWhite()) {
 							testBoard.pieces.remove(target);
 						}
 					}
-					testBoard.move(move);
+					
 					if (!testBoard.playerInCheck(white)) {
 						return true;
 					}
