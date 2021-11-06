@@ -1,10 +1,12 @@
 package unicorns;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import gameutil.math.geom.*;
 import gameutil.text.Console;
+
 
 public class Board {
 	public static final Hypercube tess=new Hypercube(new Point(new Tuple(new  double[] {0,0,0,0})), 3);
@@ -330,5 +332,61 @@ public class Board {
 	
 	public Piece getGhostPiece() {
 		return ghostPawn;
+	}
+	
+	public void makeMove(Point start,Point end) {
+		Piece p=this.pieceAt(start);
+		boolean white=p.white;
+		//make the move... need to fix/finish
+		Point boardPoint=end;
+		if (p!=null) {
+			if (white==p.isWhite()) {
+				Main.b.selectPiece(p);
+				//capture="";
+			} else if (Main.b.spaceMoveable(boardPoint)){
+				//capture
+				//capture="x";
+				move(boardPoint);
+				Piece selectedPiece=Main.b.getSelectedPiece();
+				getPieces().remove(p);
+				
+				deselectPiece();
+				if (String.valueOf(selectedPiece.getType()).toUpperCase().equals("P")&&((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&white)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!white))) {
+					//just promote
+					
+					
+				} 
+				
+			}
+		} else if (spaceMoveable(boardPoint)) {
+			
+			Piece selected=getSelectedPiece();
+			if (String.valueOf(selected.getType()).toUpperCase().equals("P")){
+				if(Main.b.getGhost()!=null&&boardPoint.equals(getGhost())&&boardPoint.distance(selected.getPos())>1) {
+					//capture="x";
+					Piece ghostPawn=getGhostPiece();
+					move(boardPoint);
+					getPieces().remove(ghostPawn);
+					
+					
+					deselectPiece();
+				} else {
+					move(boardPoint);
+					deselectPiece();
+					if ((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&white)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!white)) {
+						//just promote to queen for now... may add a more elaborate function later
+						
+					}
+				}
+			} else {
+				move(boardPoint);
+				deselectPiece();
+			}
+			
+			
+			
+		} else {
+			deselectPiece();
+		}
 	}
 }

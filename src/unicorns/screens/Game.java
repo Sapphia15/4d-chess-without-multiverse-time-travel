@@ -207,6 +207,14 @@ public class Game extends Screen{
 			} else {
 				g.setColor(new Color(0,0,0,0));
 			}
+			if (Main.b.getGhost()!=null) {
+				
+				if (p.equals(Main.b.getGhost())&&String.valueOf(Main.b.getSelectedPiece().getType()).toUpperCase().equals("P")) {
+					if (p.distance(Main.b.getSelectedPiece().getPos())>1) {//make sure the pawn move is diagonal
+						g.setColor(new Color(255,0,0,100));	
+					}
+				}
+			}
 			
 			if (wPersp) {
 				y=3-y;
@@ -524,7 +532,7 @@ public class Game extends Screen{
 					
 					Piece selected=Main.b.getSelectedPiece();
 					if (String.valueOf(selected.getType()).toUpperCase().equals("P")){
-						if(Main.b.getGhost()!=null&&boardPoint.equals(Main.b.getGhost())) {
+						if(Main.b.getGhost()!=null&&boardPoint.equals(Main.b.getGhost())&&boardPoint.distance(selected.getPos())>1) {
 							capture="x";
 							Piece ghostPawn=Main.b.getGhostPiece();
 							Main.b.move(boardPoint);
