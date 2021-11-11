@@ -213,7 +213,9 @@ public class Board {
 			}
 			this.pieces.add(clone);
 		}
-		this.lastState=b.lastState.clone();
+		if (b.lastState!=null) {
+			this.lastState=b.lastState.clone();
+		}
 	}
 	
 	public Board clone() {
@@ -237,6 +239,10 @@ public class Board {
 		}
 		
 		cloneBoard.lastPieceMoved=this.lastPieceMoved;
+		if(lastState!=null) {
+			cloneBoard.lastState=lastState.clone();
+		}
+		
 		return cloneBoard;
 	}
 	
@@ -293,11 +299,12 @@ public class Board {
 		for (Piece p:testBoard.getPieces()) {
 			if (p.isWhite()==white) {
 				Point start=p.pos.clone();
+				boolean pawn=String.valueOf(p.type).toUpperCase().equals("P");
 				for (Point move:p.getLegalMoves(p.getType(),testBoard)) {
 					Piece testPiece=testBoard.pieceAt(start);
 					testBoard.selectPiece(testPiece);
 					Piece target=testBoard.pieceAt(move);
-					testBoard.move(move);
+					testBoard.makeMove(start,move);
 					if (target!=null) {
 						if (target.isWhite()!=testPiece.isWhite()) {
 							testBoard.pieces.remove(target);
@@ -306,6 +313,19 @@ public class Board {
 					
 					if (!testBoard.playerInCheck(white)) {
 						return true;
+					}
+					
+					if (pawn&&move.distance(start)==1&&target==null) {
+						for (Point secondMove : testPiece.getLegalMoves(testPiece.getType(),testBoard)) {
+							
+							if (pieceAt(secondMove)==null) {
+								testBoard.undo();
+								testBoard.makeMove(start,secondMove,move);
+							}
+							if (!testBoard.playerInCheck(white)) {
+								return true;
+							}
+						}
 					}
 					testBoard.undo();
 				}
@@ -334,59 +354,84 @@ public class Board {
 		return ghostPawn;
 	}
 	
-	public void makeMove(Point start,Point end) {
+	public boolean makeMove(Point start,Point end,Point intermed,char promotion) {
 		Piece p=this.pieceAt(start);
+		Piece x=this.pieceAt(end);
 		boolean white=p.white;
 		//make the move... need to fix/finish
-		Point boardPoint=end;
-		if (p!=null) {
-			if (white==p.isWhite()) {
-				Main.b.selectPiece(p);
-				//capture="";
-			} else if (Main.b.spaceMoveable(boardPoint)){
+		if (x!=null) {
+			if (white==x.isWhite()) {
+				return false;
+			} else if (Main.b.spaceMoveable(end)){
 				//capture
-				//capture="x";
-				move(boardPoint);
-				Piece selectedPiece=Main.b.getSelectedPiece();
-				getPieces().remove(p);
-				
+				if (intermed!=null&&String.valueOf(p.getType()).toUpperCase().equals("P")) {
+					return false;
+				}
+				selectPiece(p);
+				move(end);
+				pieces.remove(x);
 				deselectPiece();
-				if (String.valueOf(selectedPiece.getType()).toUpperCase().equals("P")&&((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&white)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!white))) {
+				if (String.valueOf(p.getType()).toUpperCase().equals("P")&&((end.tuple.i(1)==3&&end.tuple.i(3)==3&&white)||(end.tuple.i(1)==0&&end.tuple.i(3)==0&&!white))) {
 					//just promote
-					
-					
+					pieces.remove(p);
+					Piece newPiece=new Piece(p.pos,promotion);
+					pieces.add(newPiece);
 				} 
-				
+				return true;
+			} else {
+				return false;
 			}
-		} else if (spaceMoveable(boardPoint)) {
+		} else if (spaceMoveable(end)) {
+			if (intermed!=null&&String.valueOf(p.getType()).toUpperCase().equals("P")) {
+				selectPiece(p);
+				move(end);
+				deselectPiece();
+				ghost=intermed;
+				ghostPawn=p;
+				return true;
+			}
 			
-			Piece selected=getSelectedPiece();
-			if (String.valueOf(selected.getType()).toUpperCase().equals("P")){
-				if(Main.b.getGhost()!=null&&boardPoint.equals(getGhost())&&boardPoint.distance(selected.getPos())>1) {
+			if (String.valueOf(p.getType()).toUpperCase().equals("P")){
+				if(ghost!=null&&end.equals(getGhost())&&end.distance(selected.getPos())>1) {
 					//capture="x";
-					Piece ghostPawn=getGhostPiece();
-					move(boardPoint);
+					selectPiece(p);
+					Piece ghostPawn=this.ghostPawn;
+					move(end);
 					getPieces().remove(ghostPawn);
-					
-					
 					deselectPiece();
+					return true;
 				} else {
-					move(boardPoint);
+					selectPiece(p);
+					move(end);
 					deselectPiece();
-					if ((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&white)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!white)) {
-						//just promote to queen for now... may add a more elaborate function later
-						
+					if ((end.tuple.i(1)==3&&end.tuple.i(3)==3&&white)||(end.tuple.i(1)==0&&end.tuple.i(3)==0&&!white)) {
+						//just promote
+						pieces.remove(p);
+						Piece newPiece=new Piece(p.pos,promotion);
+						pieces.add(newPiece);
 					}
+					return true;
 				}
 			} else {
-				move(boardPoint);
+				selectPiece(p);
+				move(end);
 				deselectPiece();
+				return true;
 			}
-			
-			
-			
 		} else {
-			deselectPiece();
+			return false;
 		}
+	}
+	
+	public boolean makeMove(Point start,Point end, Point intermed) {
+		char q = 'q';
+		if (pieceAt(start).white) {
+			q='Q';
+		}
+		return makeMove(start,end,intermed,q);
+	}
+	
+	public boolean makeMove(Point start,Point end) {
+		return makeMove(start,end,null);
 	}
 }

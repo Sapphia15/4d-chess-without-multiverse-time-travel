@@ -40,6 +40,7 @@ public class Game extends Screen{
 	static enum STATE {move,submit,pawnmove,detect,illegal,whiteWins,blackWins,draw,promote,detectPawn};
 	STATE state=STATE.move;
 	Point promoteSquare=null;
+	String promotePiece="";
 	String capture="";
 	
 	
@@ -464,7 +465,7 @@ public class Game extends Screen{
 				state=STATE.draw;
 			} else {
 				state=STATE.move;
-				Console.s.println(whiteTurn);
+				//Console.s.println(whiteTurn);
 				wPersp=(!wPersp&&!ai)||(ai&&!aiColor);
 			}
 		} else if (state==STATE.promote&&ai&&aiColor==whiteTurn) {
@@ -582,6 +583,7 @@ public class Game extends Screen{
 						if (r.contains(e.getPoint())) {
 							Main.b.getPieces().remove(Main.b.pieceAt(promoteSquare));
 							Piece newPiece=promotablesW.get(r).clone();
+							promotePiece=String.valueOf(newPiece.getType()).toUpperCase();
 							newPiece.setPos(promoteSquare);
 							Main.b.getPieces().add(newPiece);
 							promoteSquare=null;
@@ -594,6 +596,7 @@ public class Game extends Screen{
 					if (r.contains(e.getPoint())) {
 						Main.b.getPieces().remove(Main.b.pieceAt(promoteSquare));
 						Piece newPiece=promotablesB.get(r).clone();
+						promotePiece=String.valueOf(newPiece.getType()).toUpperCase();
 						newPiece.setPos(promoteSquare);
 						Main.b.getPieces().add(newPiece);
 						promoteSquare=null;
@@ -632,9 +635,9 @@ public class Game extends Screen{
 				if (pieceLetter.equals("P")) {
 					pieceLetter="";
 				}
-				Console.s.print(pieceLetter+Board.pointToNotation(Main.b.lastMoveStart())+" "+capture+Board.pointToNotation(Main.b.lastMoveEnd())+" / ");
+				Console.s.print(pieceLetter+Board.pointToNotation(Main.b.lastMoveStart())+" "+capture+Board.pointToNotation(Main.b.lastMoveEnd())+promotePiece+" / ");
 			} else {
-				Console.s.print(Board.pointToNotation(Main.b.lastMoveStart())+" ("+Board.pointToNotation(Main.b.getGhost())+") "+Board.pointToNotation(Main.b.lastMoveEnd())+" / ");
+				Console.s.print(Board.pointToNotation(Main.b.lastMoveStart())+" ("+Board.pointToNotation(Main.b.getGhost())+") "+Board.pointToNotation(Main.b.lastMoveEnd())+promotePiece+" / ");
 			}
 		} else {
 			if (Main.b.getGhost()==null) {
@@ -642,11 +645,12 @@ public class Game extends Screen{
 				if (pieceLetter.equals("P")) {
 					pieceLetter="";
 				}
-				Console.s.println(pieceLetter+Board.pointToNotation(Main.b.lastMoveStart())+" "+capture+Board.pointToNotation(Main.b.lastMoveEnd()));
+				Console.s.println(pieceLetter+Board.pointToNotation(Main.b.lastMoveStart())+" "+capture+Board.pointToNotation(Main.b.lastMoveEnd())+promotePiece);
 			} else {
-				Console.s.println(Board.pointToNotation(Main.b.lastMoveStart())+" ("+Board.pointToNotation(Main.b.getGhost())+") "+Board.pointToNotation(Main.b.lastMoveEnd()));
+				Console.s.println(Board.pointToNotation(Main.b.lastMoveStart())+" ("+Board.pointToNotation(Main.b.getGhost())+") "+Board.pointToNotation(Main.b.lastMoveEnd())+promotePiece);
 			}
 		}
+		promotePiece="";
 	}
 	
 	public void submit() {
