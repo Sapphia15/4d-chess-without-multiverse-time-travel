@@ -34,7 +34,7 @@ public class Game extends Screen{
 	String space="a0α0";
 	boolean whiteTurn=true;
 	boolean checked=false;
-	boolean ai=false;
+	boolean ai=true;
 	Random rand=new Random();
 	boolean aiColor=(1==rand.nextInt(2));
 	static enum STATE {move,submit,pawnmove,detect,illegal,whiteWins,blackWins,draw,promote,detectPawn};
@@ -392,9 +392,8 @@ public class Game extends Screen{
 							}
 						}
 					} else {
-						Main.b.move(move);
-						
 						Piece target=Main.b.pieceAt(move);
+						Main.b.move(move);
 						if (target!=null) {
 							capture="x";
 							if (target.isWhite()!=whiteTurn) {
@@ -408,7 +407,7 @@ public class Game extends Screen{
 							capture="";
 						}
 						if (Main.b.playerInCheck(aiColor)) {
-							Main.b.undo();
+							state=STATE.detect;
 							//Console.s.println("Checking move "+Board.pointToNotation(move));
 						} else {
 							//Console.s.println("Found Move");
@@ -470,6 +469,9 @@ public class Game extends Screen{
 			}
 		} else if (state==STATE.promote&&ai&&aiColor==whiteTurn) {
 			Piece newPiece=null;
+			//remove the pawn
+			Main.b.getPieces().remove(Main.b.pieceAt(promoteSquare));
+			//for the sake of simplicity, ai will always promote to queen. It's probably the best in most situations anyway.
 			if (aiColor) {
 				newPiece=new Piece(promoteSquare,'Q');
 			} else {
@@ -547,6 +549,7 @@ public class Game extends Screen{
 							Main.b.move(boardPoint);
 							Main.b.selectPiece(selected);
 						} else {
+							//TODO this looks like it should work but promotion just didn't happen once during a test run...
 							Main.b.move(boardPoint);
 							Main.b.deselectPiece();
 							if ((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&whiteTurn)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!whiteTurn)) {
