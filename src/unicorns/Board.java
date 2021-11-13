@@ -140,7 +140,7 @@ public class Board {
 	
 	public void selectPiece(Piece p) {
 		selected=p;
-		this.legalMoves=p.getLegalMoves(p.type,this);
+		this.legalMoves=p.getPotentialMoves(p.type,this);
 	}
 	
 	public void deselectPiece() {
@@ -281,9 +281,11 @@ public class Board {
 		} else {
 			king=getBlackKing().getPos();
 		}
-		for (Piece p:getPieces()) {
-			if (p.isWhite()!=white) {
-				for (Point move:p.getLegalMoves(p.getType(),this)) {
+		king.printVals("King");
+		for (Piece p:pieces) {
+			if (p.white!=white) {
+				for (Point move:p.getPotentialMoves(p.getType(),this)) {
+					move.printVals("Move");
 					if (move.equals(king)){
 						return true;
 					}
@@ -294,44 +296,109 @@ public class Board {
 	}
 	
 	public boolean playerHasLegalMove(boolean white) {
+		
 		Board testBoard=this.clone();
-		testBoard.lastState=this.clone();
-		for (Piece p:testBoard.getPieces()) {
-			if (p.isWhite()==white) {
+		//testBoard.lastState=this.clone();
+		for (Piece p:this.getPieces()) {
+			if (p.white==white) {
 				Point start=p.pos.clone();
+				boolean fm=p.firstMove;
 				boolean pawn=String.valueOf(p.type).toUpperCase().equals("P");
-				for (Point move:p.getLegalMoves(p.getType(),testBoard)) {
-					Piece testPiece=testBoard.pieceAt(start);
-					testBoard.selectPiece(testPiece);
-					Piece target=testBoard.pieceAt(move);
-					testBoard.makeMove(start,move);
-					if (target!=null) {
-						if (target.isWhite()!=testPiece.isWhite()) {
-							testBoard.pieces.remove(target);
-						}
-					}
+				for (Point move:p.getPotentialMoves(p.getType(),this)) {
 					
+					//Main.err.println("Testing move: "+Board.pointToNotation(start)+" "+Board.pointToNotation(move));
+					Piece target=testBoard.pieceAt(move);
+					boolean moveMade=testBoard.makeMove(start,move);
+					Piece testPiece=testBoard.pieceAt(move).clone();
+					//Main.err.println("In check on test board: "+testBoard.playerInCheck(white));
 					if (!testBoard.playerInCheck(white)) {
+						//Main.err.println("Legal Move found: "+Board.pointToNotation(start)+" "+Board.pointToNotation(move));
 						return true;
 					}
-					
-					if (pawn&&move.distance(start)==1&&target==null) {
-						for (Point secondMove : testPiece.getLegalMoves(testPiece.getType(),testBoard)) {
+					if (moveMade) {
+						testBoard.undo();
+					} else  {
+						Main.err.println("Tried to make illegal move on test board: "+Board.pointToNotation(start)+" "+Board.pointToNotation(move));
+					}
+					if (pawn&&move.distance(start)==1&&target==null&&fm) {
+						for (Point secondMove : testPiece.getPotentialMoves(testPiece.getType(),testBoard)) {
 							
 							if (pieceAt(secondMove)==null) {
-								testBoard.undo();
-								testBoard.makeMove(start,secondMove,move);
+								
+								moveMade=testBoard.makeMove(start,secondMove,move);
+								
+								if (!testBoard.playerInCheck(white)) {
+									//Main.err.println("Legal Move found: "+Board.pointToNotation(start)+" ("+Board.pointToNotation(move)+") "+Board.pointToNotation(secondMove));
+									return true;
+									
+								}
+								if (moveMade) {
+									testBoard.undo();
+								} else  {
+									Main.err.println("Tried to make illegal move on test board: "+Board.pointToNotation(start)+" ("+Board.pointToNotation(move)+") "+Board.pointToNotation(secondMove));
+								}
 							}
-							if (!testBoard.playerInCheck(white)) {
-								return true;
-							}
+							
 						}
 					}
-					testBoard.undo();
+					
 				}
 			}
 		}
 		return false;
+	}
+	
+	public ArrayList<Point[]> getAllLegalMoves(boolean white){
+		ArrayList<Point[]> legalMoves=new ArrayList<>();
+		Board testBoard=this.clone();
+		//testBoard.lastState=this.clone();
+		for (Piece p:this.getPieces()) {
+			if (p.white==white) {
+				Point start=p.pos.clone();
+				boolean fm=p.firstMove;
+				boolean pawn=String.valueOf(p.type).toUpperCase().equals("P");
+				for (Point move:p.getPotentialMoves(p.getType(),this)) {
+					
+					//Main.err.println("Testing move: "+Board.pointToNotation(start)+" "+Board.pointToNotation(move));
+					Piece target=testBoard.pieceAt(move);
+					boolean moveMade=testBoard.makeMove(start,move);
+					Piece testPiece=testBoard.pieceAt(move).clone();
+					//Main.err.println("In check on test board: "+testBoard.playerInCheck(white));
+					if (!testBoard.playerInCheck(white)) {
+						//Main.err.println("Legal Move found: "+Board.pointToNotation(start)+" "+Board.pointToNotation(move));
+						legalMoves.add(new Point[] {start,move});
+					}
+					if (moveMade) {
+						testBoard.undo();
+					} else  {
+						Main.err.println("Tried to make illegal move on test board: "+Board.pointToNotation(start)+" "+Board.pointToNotation(move));
+					}
+					if (pawn&&move.distance(start)==1&&target==null&&fm) {
+						for (Point secondMove : testPiece.getPotentialMoves(testPiece.getType(),testBoard)) {
+							
+							if (pieceAt(secondMove)==null) {
+								
+								moveMade=testBoard.makeMove(start,secondMove,move);
+								
+								if (!testBoard.playerInCheck(white)) {
+									//Main.err.println("Legal Move found: "+Board.pointToNotation(start)+" ("+Board.pointToNotation(move)+") "+Board.pointToNotation(secondMove));
+									legalMoves.add(new Point[] {start,secondMove,move});
+									
+								}
+								if (moveMade) {
+									testBoard.undo();
+								} else  {
+									Main.err.println("Tried to make illegal move on test board: "+Board.pointToNotation(start)+" ("+Board.pointToNotation(move)+") "+Board.pointToNotation(secondMove));
+								}
+							}
+							
+						}
+					}
+					
+				}
+			}
+		}
+		return legalMoves;
 	}
 	
 	public boolean playerInCheckMate(boolean white) {
@@ -354,17 +421,26 @@ public class Board {
 		return ghostPawn;
 	}
 	
+	public boolean moveIsLegal(Point start, Point end) {
+		Board testBoard=this.clone();
+		testBoard.makeMove(start, end);
+		return testBoard.playerInCheck(testBoard.pieceAt(end).white);
+	}
+	
 	public boolean makeMove(Point start,Point end,Point intermed,char promotion) {
 		Piece p=this.pieceAt(start);
 		Piece x=this.pieceAt(end);
+		selectPiece(p);
 		boolean white=p.white;
 		//make the move... need to fix/finish
 		if (x!=null) {
 			if (white==x.isWhite()) {
+				deselectPiece();
 				return false;
-			} else if (Main.b.spaceMoveable(end)){
+			} else if (this.spaceMoveable(end)){
 				//capture
 				if (intermed!=null&&String.valueOf(p.getType()).toUpperCase().equals("P")) {
+					deselectPiece();
 					return false;
 				}
 				selectPiece(p);
@@ -379,17 +455,17 @@ public class Board {
 				} 
 				return true;
 			} else {
+				deselectPiece();
 				return false;
 			}
+		} else if(intermed!=null&&String.valueOf(p.getType()).toUpperCase().equals("P")&&this.spaceMoveable(intermed)&&this.pieceAt(end)==null) {
+			selectPiece(p);
+			move(end);
+			deselectPiece();
+			ghost=intermed;
+			ghostPawn=p;
+			return true;
 		} else if (spaceMoveable(end)) {
-			if (intermed!=null&&String.valueOf(p.getType()).toUpperCase().equals("P")) {
-				selectPiece(p);
-				move(end);
-				deselectPiece();
-				ghost=intermed;
-				ghostPawn=p;
-				return true;
-			}
 			
 			if (String.valueOf(p.getType()).toUpperCase().equals("P")){
 				if(ghost!=null&&end.equals(getGhost())&&end.distance(selected.getPos())>1) {
@@ -419,6 +495,7 @@ public class Board {
 				return true;
 			}
 		} else {
+			deselectPiece();
 			return false;
 		}
 	}
@@ -433,5 +510,14 @@ public class Board {
 	
 	public boolean makeMove(Point start,Point end) {
 		return makeMove(start,end,null);
+	}
+	
+	public boolean makeMove(Point[] move) {
+		if (move.length==2) {
+			return makeMove(move[0],move[1]);
+		} else {
+			//the only other case is a move length of three (a pawn move that moves two spaces)
+			return makeMove(move[0],move[1],move[2]);
+		}
 	}
 }

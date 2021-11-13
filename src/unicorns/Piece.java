@@ -20,7 +20,7 @@ public class Piece {
 		this.white=String.valueOf(type).toUpperCase().equals(String.valueOf(type));
 	}
 	
-	public Point[] getLegalMoves(char type,Board bo) {
+	public Point[] getPotentialMoves(char type,Board bo) {
 		ArrayList<Point> moves=new ArrayList<Point>();
 		Vector vp=new Vector(pos);
 		Vector fx=new Vector(new double[] {1,0,0,0});//maybe change these to the unit vector function later
@@ -205,16 +205,16 @@ public class Piece {
 				}
 			break;
 			case "Q":
-				for (Point move : getLegalMoves('D')) {
+				for (Point move : getPotentialMoves('D',bo)) {
 					moves.add(move);
 				}
-				for (Point move : getLegalMoves('B')) {
+				for (Point move : getPotentialMoves('B',bo)) {
 					moves.add(move);
 				}
-				for (Point move : getLegalMoves('U')) {
+				for (Point move : getPotentialMoves('U',bo)) {
 					moves.add(move);
 				}
-				for (Point move : getLegalMoves('R')) {
+				for (Point move : getPotentialMoves('R',bo)) {
 					moves.add(move);
 				}
 			break;
@@ -298,22 +298,22 @@ public class Piece {
 			break;
 			case "K":
 				//TODO king moves
-				for (Point move : getLegalMoves('D')) {
+				for (Point move : getPotentialMoves('D',bo)) {
 					if (new Vector(move).$S$(vp).magnitude()<=2) {
 						moves.add(move);
 					}
 				}
-				for (Point move : getLegalMoves('B')) {
+				for (Point move : getPotentialMoves('B',bo)) {
 					if (new Vector(move).$S$(vp).magnitude()<=Math.sqrt(2)) {
 						moves.add(move);
 					}
 				}
-				for (Point move : getLegalMoves('U')) {
+				for (Point move : getPotentialMoves('U',bo)) {
 					if (new Vector(move).$S$(vp).magnitude()<=Math.sqrt(3)) {
 						moves.add(move);
 					}
 				}
-				for (Point move : getLegalMoves('R')) {
+				for (Point move : getPotentialMoves('R',bo)) {
 					if (new Vector(move).$S$(vp).magnitude()<=1) {
 						moves.add(move);
 					}
@@ -330,11 +330,11 @@ public class Piece {
 	}
 	
 	public Point[] getLegalMoves(char type) {
-		return getLegalMoves(type,Main.b);
+		return getPotentialMoves(type,Main.b);
 	}
 	
 	public Point[] getLegalMoves() {
-		return getLegalMoves(this.type,Main.b);
+		return getPotentialMoves(this.type,Main.b);
 	}
 	
 	public Image getImage() {
@@ -412,7 +412,9 @@ public class Piece {
 		if (this.pos!=null) {
 			pos=this.pos.clone();
 		}
-		return new Piece(pos,type);
+		Piece clone=new Piece(pos,type);
+		clone.firstMove=this.firstMove;
+		return clone;
 	}
 	
 	public void setPos(Point pos) {

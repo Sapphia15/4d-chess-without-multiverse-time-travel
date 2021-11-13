@@ -37,11 +37,13 @@ public class Game extends Screen{
 	boolean ai=true;
 	Random rand=new Random();
 	boolean aiColor=(1==rand.nextInt(2));
-	static enum STATE {move,submit,pawnmove,detect,illegal,whiteWins,blackWins,draw,promote,detectPawn};
+	static enum STATE {move,submit,pawnmove,detect,illegal,whiteWins,blackWins,draw,promote,detectPawn,detectMate};
 	STATE state=STATE.move;
 	Point promoteSquare=null;
 	String promotePiece="";
 	String capture="";
+	Hashtable<Point,Point> illegalMoves=new Hashtable<>();
+	//TODO need to add clocks!
 	
 	
 	Hashtable<Rectangle,Piece> promotablesW=new Hashtable<>();
@@ -173,13 +175,6 @@ public class Game extends Screen{
 			int y=(int)p.tuple.i(1);
 			int z=(int)p.tuple.i(2);
 			int w=(int)p.tuple.i(3);
-			if (Main.b.pieceAt(p)==null) {
-				g.setColor(new Color(0,255,0,100));
-			} else if (state==STATE.move) {
-				g.setColor(new Color(255,0,0,100));	
-			} else {
-				g.setColor(new Color(0,0,0,0));
-			}
 			
 			if (wPersp) {
 				y=3-y;
@@ -351,101 +346,11 @@ public class Game extends Screen{
 			}
 			
 		} else if (state==STATE.move&&ai&&whiteTurn==aiColor) {
-			Piece p=Main.b.getPieces().get(rand.nextInt(Main.b.getPieces().size()));
-			if (p.isWhite()==aiColor) {
-				Main.b.selectPiece(p);
-				Point[] legalMoves=p.getLegalMoves();
-				if (legalMoves.length>0) {
-					Point move=legalMoves[rand.nextInt(legalMoves.length)];
-					if (String.valueOf(p.getType()).toUpperCase().equals("P")){
-						Piece target=Main.b.pieceAt(move);
-						if (p.isFirstMove()&&target==null) {
-							state=STATE.pawnmove;
-							Main.b.move(move);
-							Main.b.selectPiece(p);
-							capture="";
-						} else if(Main.b.getGhost()!=null&&move.equals(Main.b.getGhost())) {
-							capture="x";
-							Piece ghostPawn=Main.b.getGhostPiece();
-							Main.b.move(move);
-							Main.b.getPieces().remove(ghostPawn);
-							Main.b.deselectPiece();
-							state=STATE.detect;
-						} else {
-							Main.b.move(move);
-							Main.b.deselectPiece();
-							if (target!=null) {
-								if (target.isWhite()!=whiteTurn) {
-									//capture
-									Main.b.getPieces().remove(target);
-								}
-								capture="x";
-							} else {
-								capture="";
-							}
-							if ((move.tuple.i(1)==3&&move.tuple.i(3)==3&&whiteTurn)||(move.tuple.i(1)==0&&move.tuple.i(3)==0&&!whiteTurn)) {
-								promoteSquare=move;
-								state=STATE.promote;
-								
-							} else {
-								state=STATE.detect;
-							}
-						}
-					} else {
-						Piece target=Main.b.pieceAt(move);
-						Main.b.move(move);
-						if (target!=null) {
-							capture="x";
-							if (target.isWhite()!=whiteTurn) {
-								//capture
-								Main.b.getPieces().remove(target);
-								state=STATE.detect;
-								
-							}
-							
-						} else {
-							capture="";
-						}
-						if (Main.b.playerInCheck(aiColor)) {
-							state=STATE.detect;
-							//Console.s.println("Checking move "+Board.pointToNotation(move));
-						} else {
-							//Console.s.println("Found Move");
-							state=STATE.submit;
-						}
-					}
-					
-				} else {
-					Main.b.deselectPiece();
-				}
-			} 
-		} else if (state==STATE.pawnmove&&ai&&whiteTurn==aiColor) {
-			int move=rand.nextInt(Main.b.moveableSpaces().length+1);
-			if (move>=Main.b.moveableSpaces().length) {
-				if (Main.b.playerInCheck(aiColor)) {
-					Main.b.undo();
-					state=STATE.move;
-				} else {
-					//Console.s.println("Found Move");
-					state=STATE.submit;
-					
-				}
-			} else {
-				if (Main.b.pieceAt(Main.b.moveableSpaces()[move])==null) {
-					Main.b.secondPawnMove(Main.b.moveableSpaces()[move]);
-					if (Main.b.playerInCheck(aiColor)) {
-						Main.b.undo();
-						state=STATE.move;
-					} else {
-						//Console.s.println("Found Move");
-						state=STATE.submit;
-					}
-				}else {
-					Main.b.undo();
-					state=STATE.move;
-				}
-				
-			}
+			ArrayList<Point[]> legalMoves=Main.b.getAllLegalMoves(whiteTurn);
+			Point[] move=legalMoves.get(rand.nextInt(legalMoves.size()));
+			Main.b.makeMove(move);
+			state=STATE.submit;
+			
 		} else if (state==STATE.submit&&ai&&whiteTurn==aiColor) {
 			Main.b.deselectPiece();
 			recNotation();
@@ -613,7 +518,7 @@ public class Game extends Screen{
 	public void mouseMoved(MouseEvent e) {
 		if (board.contains(e.getPoint())) {
 			Point boardPoint=screenToBoard(e.getX(),e.getY());
-			if (Board.contains(boardPoint)) {
+			if (boardPoint!=null&&Board.contains(boardPoint)) {
 				space=Board.pointToNotation(boardPoint);
 			}
 		}
@@ -657,14 +562,13 @@ public class Game extends Screen{
 	}
 	
 	public void submit() {
+		illegalMoves.clear();
 		recNotation();
-		if (ai) {
-			state=STATE.move;
-		}
+		state=state.detectMate;
 		whiteTurn=!whiteTurn;
 		boolean legalMove=Main.b.playerHasLegalMove(whiteTurn);
 		checked=Main.b.playerInCheck(whiteTurn);
-		if (!legalMove&&checked) {
+		if ((!legalMove)&&checked) {
 			if (whiteTurn) {
 				state=STATE.blackWins;
 			} else {
