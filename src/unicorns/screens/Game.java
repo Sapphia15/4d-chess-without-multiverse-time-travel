@@ -27,6 +27,7 @@ public class Game extends Screen{
 	Panel observer;
 	Hashtable<Rectangle,Point> rects=new Hashtable<>();
 	Rectangle board=new Rectangle(0,0,1,1);
+	Board b=new Board();
 	boolean wPersp=true;
 	int oldWidth=0;
 	int oldHeight=0;
@@ -36,13 +37,12 @@ public class Game extends Screen{
 	boolean checked=false;
 	boolean ai=true;
 	Random rand=new Random();
-	boolean aiColor=(1==rand.nextInt(2));
-	static enum STATE {move,submit,pawnmove,detect,illegal,whiteWins,blackWins,draw,promote,detectPawn,detectMate};
+	boolean aiColor=false;
+	static enum STATE {move,submit,pawnmove,detect,illegal,whiteWins,blackWins,draw,promote,detectPawn,detectMate,analyze};//need to add analyze state still...
 	STATE state=STATE.move;
 	Point promoteSquare=null;
 	String promotePiece="";
 	String capture="";
-	Hashtable<Point,Point> illegalMoves=new Hashtable<>();
 	//TODO need to add clocks!
 	
 	
@@ -54,6 +54,7 @@ public class Game extends Screen{
 		if (ai) {
 			wPersp=!aiColor;
 		}
+		b.setUp();
 		
 	}
 	
@@ -90,7 +91,7 @@ public class Game extends Screen{
 		g.setFont(newFont);
 		g.drawString(space,10,sq);
 		
-		Piece selected=Main.b.getSelectedPiece();
+		Piece selected=b.getSelectedPiece();
 		if (selected!=null) {
 			int x=selected.getX();
 			int y=selected.getY();
@@ -107,7 +108,7 @@ public class Game extends Screen{
 			g.fillRect(offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4);
 		}
 		
-		Point lastMoveStart=Main.b.lastMoveStart();
+		Point lastMoveStart=b.lastMoveStart();
 		
 		if (lastMoveStart!=null) {
 			
@@ -128,7 +129,7 @@ public class Game extends Screen{
 			g.fillRect(offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4);
 		}
 		
-		Point lastMoveEnd=Main.b.lastMoveEnd();
+		Point lastMoveEnd=b.lastMoveEnd();
 		if (lastMoveEnd!=null) {
 			
 			int x=(int)lastMoveEnd.tuple.i(0);
@@ -148,7 +149,7 @@ public class Game extends Screen{
 			g.fillRect(offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4);
 		}
 		
-		for (Piece p : Main.b.getPieces()) {
+		for (Piece p : b.getPieces()) {
 			int x=p.getX();
 			int y=p.getY();
 			int z=p.getZ();
@@ -163,14 +164,14 @@ public class Game extends Screen{
 			g.drawImage(p.getImage(),offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4,null);
 		}
 		
-		if (Main.b.getGhost()!=null) {
+		if (b.getGhost()!=null) {
 			Image ghost=null;
-			if (Main.b.getGhostPiece().isWhite()) {
+			if (b.getGhostPiece().isWhite()) {
 				ghost=Assets.GHOST_W;
 			} else {
 				ghost=Assets.GHOST_B;
 			}
-			Point p=Main.b.getGhost();
+			Point p=b.getGhost();
 			int x=(int)p.tuple.i(0);
 			int y=(int)p.tuple.i(1);
 			int z=(int)p.tuple.i(2);
@@ -189,24 +190,24 @@ public class Game extends Screen{
 			
 		}
 		
-		//Console.s.println(Main.b.moveableSpaces().length);
-		for (Point p : Main.b.moveableSpaces()) {
+		//Console.s.println(b.moveableSpaces().length);
+		for (Point p : b.moveableSpaces()) {
 			
 			int x=(int)p.tuple.i(0);
 			int y=(int)p.tuple.i(1);
 			int z=(int)p.tuple.i(2);
 			int w=(int)p.tuple.i(3);
-			if (Main.b.pieceAt(p)==null) {
+			if (b.pieceAt(p)==null) {
 				g.setColor(new Color(0,255,0,100));
 			} else if (state==STATE.move) {
 				g.setColor(new Color(255,0,0,100));	
 			} else {
 				g.setColor(new Color(0,0,0,0));
 			}
-			if (Main.b.getGhost()!=null) {
+			if (b.getGhost()!=null) {
 				
-				if (p.equals(Main.b.getGhost())&&String.valueOf(Main.b.getSelectedPiece().getType()).toUpperCase().equals("P")) {
-					if (p.distance(Main.b.getSelectedPiece().getPos())>1) {//make sure the pawn move is diagonal
+				if (p.equals(b.getGhost())&&String.valueOf(b.getSelectedPiece().getType()).toUpperCase().equals("P")) {
+					if (p.distance(b.getSelectedPiece().getPos())>1) {//make sure the pawn move is diagonal
 						g.setColor(new Color(255,0,0,100));	
 					}
 				}
@@ -224,21 +225,21 @@ public class Game extends Screen{
 		}
 		
 		if (state==STATE.whiteWins) {
-			g.setColor(Color.white);
+			g.setColor(new Color(255,255,255,100));
 			g.fillRoundRect(offX+num/2-g.getFontMetrics().stringWidth("White Wins!")/2-gap,offY+num/2, g.getFontMetrics().stringWidth("White Wins!")+gap*2, sq+gap, 20,20);
-			g.setColor(Color.black);
+			g.setColor(new Color(0,0,0,150));
 			g.drawString("White Wins!",offX+num/2-g.getFontMetrics().stringWidth("White Wins!")/2,offY+num/2+sq);
 			
 		} else if (state==STATE.blackWins) {
-			g.setColor(Color.black);
+			g.setColor(new Color(0,0,0,100));
 			g.fillRoundRect(offX+num/2-g.getFontMetrics().stringWidth("Black Wins!")/2-gap,offY+num/2, g.getFontMetrics().stringWidth("Black Wins!")+gap*2, sq+gap, 20,20);
-			g.setColor(Color.white);
+			g.setColor(new Color(255,255,255,150));
 			g.drawString("Black Wins!",offX+num/2-g.getFontMetrics().stringWidth("Black Wins!")/2,offY+num/2+sq);
 			
 		} else if (state==STATE.draw){
-			g.setColor(Color.gray);
+			g.setColor(new Color(127,127,127,100));
 			g.fillRoundRect(offX+num/2-g.getFontMetrics().stringWidth("Unicorns are amazing! (also it's a draw)")/2-gap,offY+num/2, g.getFontMetrics().stringWidth("Unicorns are amazing! (also it's a draw)")+gap*2, sq+gap, 20,20);
-			g.setColor(Color.pink);
+			g.setColor(new Color(255,100,100,150));
 			g.drawString("Unicorns are amazing! (also it's a draw)",offX+num/2-g.getFontMetrics().stringWidth("Unicorns are amazing! (also it's a draw)")/2,offY+num/2+sq);
 		} else if (state==STATE.promote) {
 			if (whiteTurn) {
@@ -319,13 +320,13 @@ public class Game extends Screen{
 		if (state==STATE.detect||state==STATE.detectPawn) {
 			Point king=null;
 			if (whiteTurn) {
-				king=Main.b.getWhiteKing().getPos();
+				king=b.getWhiteKing().getPos();
 			} else {
-				king=Main.b.getBlackKing().getPos();
+				king=b.getBlackKing().getPos();
 			}
-			for (Piece p:Main.b.getPieces()) {
+			for (Piece p:b.getPieces()) {
 				if (p.isWhite()!=whiteTurn) {
-					for (Point move:p.getLegalMoves(p.getType())) {
+					for (Point move:p.getPotentialMoves(p.getType(),b)) {
 						if (move.equals(king)){
 							
 								state=STATE.illegal;
@@ -341,24 +342,24 @@ public class Game extends Screen{
 					state=STATE.submit;
 				}
 			} else if (ai&&whiteTurn==aiColor) {
-				Main.b.undo();
+				b.undo();
 				state=STATE.move;
 			}
 			
 		} else if (state==STATE.move&&ai&&whiteTurn==aiColor) {
-			ArrayList<Point[]> legalMoves=Main.b.getAllLegalMoves(whiteTurn);
+			ArrayList<Point[]> legalMoves=b.getAllLegalMoves(whiteTurn);
 			Point[] move=legalMoves.get(rand.nextInt(legalMoves.size()));
-			Main.b.makeMove(move);
+			b.makeMove(move);
 			state=STATE.submit;
 			
 		} else if (state==STATE.submit&&ai&&whiteTurn==aiColor) {
-			Main.b.deselectPiece();
+			b.deselectPiece();
 			recNotation();
 			whiteTurn=!whiteTurn;
 			//Console.s.println("searching for legal moves...");
 			
-			boolean legalMove=Main.b.playerHasLegalMove(whiteTurn);
-			checked=Main.b.playerInCheck(whiteTurn);
+			boolean legalMove=b.playerHasLegalMove(whiteTurn);
+			checked=b.playerInCheck(whiteTurn);
 			if ((!legalMove)&&checked) {
 				if (whiteTurn) {
 					state=STATE.blackWins;
@@ -375,14 +376,14 @@ public class Game extends Screen{
 		} else if (state==STATE.promote&&ai&&aiColor==whiteTurn) {
 			Piece newPiece=null;
 			//remove the pawn
-			Main.b.getPieces().remove(Main.b.pieceAt(promoteSquare));
+			b.getPieces().remove(b.pieceAt(promoteSquare));
 			//for the sake of simplicity, ai will always promote to queen. It's probably the best in most situations anyway.
 			if (aiColor) {
 				newPiece=new Piece(promoteSquare,'Q');
 			} else {
 				newPiece=new Piece(promoteSquare,'q');
 			}
-			Main.b.getPieces().add(newPiece);
+			b.getPieces().add(newPiece);
 			promoteSquare=null;
 			state=STATE.detect;
 		}
@@ -391,19 +392,28 @@ public class Game extends Screen{
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode()==KeyEvent.VK_P) {
 			wPersp=!wPersp;
-		} else if (e.getKeyCode()==KeyEvent.VK_F&&!(ai&&whiteTurn==aiColor)) {
+		} else if (e.getKeyCode()==KeyEvent.VK_F&&!(ai&&whiteTurn==aiColor&&(!(state==STATE.blackWins||state==STATE.whiteWins||state==STATE.draw)))) {
 			if (state==STATE.pawnmove) {
-				Main.b.deselectPiece();
+				b.deselectPiece();
 				state=STATE.detectPawn;
 			} else if (state==STATE.submit&&(!ai||whiteTurn!=aiColor)) {
 				submit();
 				
+			} else if (state==STATE.blackWins||state==STATE.whiteWins||state==STATE.draw) {
+				if (state==STATE.blackWins) {
+					Console.s.println("0-1");
+				} else if (state==STATE.whiteWins) {
+					Console.s.println("1-0");
+				} else {
+					Console.s.println("1/2-1/2");
+				}
+				observer.setScreen("title");
 			}
 			
 		} else if (e.getKeyCode()==KeyEvent.VK_Z && (state==STATE.submit || state==STATE.illegal||state==STATE.pawnmove)) {
 			capture="";
 			state=STATE.move;
-			Main.b.undo();
+			b.undo();
 		}
 	}
 	
@@ -414,19 +424,19 @@ public class Game extends Screen{
 			Point boardPoint=screenToBoard(e.getX(),e.getY());
 			if (state==STATE.move && !(ai&&whiteTurn==aiColor)) {
 				//Console.s.println("clicked board");
-				Piece p=Main.b.pieceAt(boardPoint);
+				Piece p=b.pieceAt(boardPoint);
 				if (p!=null) {
 					if (whiteTurn==p.isWhite()) {
-						Main.b.selectPiece(p);
+						b.selectPiece(p);
 						capture="";
-					} else if (Main.b.spaceMoveable(boardPoint)){
+					} else if (b.spaceMoveable(boardPoint)){
 						//capture
 						capture="x";
-						Main.b.move(boardPoint);
-						Piece selectedPiece=Main.b.getSelectedPiece();
-						Main.b.getPieces().remove(p);
+						b.move(boardPoint);
+						Piece selectedPiece=b.getSelectedPiece();
+						b.getPieces().remove(p);
 						
-						Main.b.deselectPiece();
+						b.deselectPiece();
 						if (String.valueOf(selectedPiece.getType()).toUpperCase().equals("P")&&((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&whiteTurn)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!whiteTurn))) {
 							promoteSquare=boardPoint;
 							state=STATE.promote;
@@ -436,27 +446,27 @@ public class Game extends Screen{
 						}
 						
 					}
-				} else if (Main.b.spaceMoveable(boardPoint)) {
+				} else if (b.spaceMoveable(boardPoint)) {
 					
-					Piece selected=Main.b.getSelectedPiece();
+					Piece selected=b.getSelectedPiece();
 					if (String.valueOf(selected.getType()).toUpperCase().equals("P")){
-						if(Main.b.getGhost()!=null&&boardPoint.equals(Main.b.getGhost())&&boardPoint.distance(selected.getPos())>1) {
+						if(b.getGhost()!=null&&boardPoint.equals(b.getGhost())&&boardPoint.distance(selected.getPos())>1) {
 							capture="x";
-							Piece ghostPawn=Main.b.getGhostPiece();
-							Main.b.move(boardPoint);
-							Main.b.getPieces().remove(ghostPawn);
+							Piece ghostPawn=b.getGhostPiece();
+							b.move(boardPoint);
+							b.getPieces().remove(ghostPawn);
 							
 							
-							Main.b.deselectPiece();
+							b.deselectPiece();
 							state=STATE.detect;
 						} else if (selected.isFirstMove()) {
 							state=STATE.pawnmove;
-							Main.b.move(boardPoint);
-							Main.b.selectPiece(selected);
+							b.move(boardPoint);
+							b.selectPiece(selected);
 						} else {
 							//TODO this looks like it should work but promotion just didn't happen once during a test run...
-							Main.b.move(boardPoint);
-							Main.b.deselectPiece();
+							b.move(boardPoint);
+							b.deselectPiece();
 							if ((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&whiteTurn)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!whiteTurn)) {
 								promoteSquare=boardPoint;
 								state=STATE.promote;
@@ -466,8 +476,8 @@ public class Game extends Screen{
 							}
 						}
 					} else {
-						Main.b.move(boardPoint);
-						Main.b.deselectPiece();
+						b.move(boardPoint);
+						b.deselectPiece();
 						state=STATE.detect;
 						
 					}
@@ -475,12 +485,12 @@ public class Game extends Screen{
 					
 					
 				} else {
-					Main.b.deselectPiece();
+					b.deselectPiece();
 				}
 			} else if (state==STATE.pawnmove) {
-				if (Main.b.spaceMoveable(boardPoint)&&Main.b.pieceAt(boardPoint)==null) {
-					Main.b.secondPawnMove(boardPoint);
-					Main.b.deselectPiece();
+				if (b.spaceMoveable(boardPoint)&&b.pieceAt(boardPoint)==null) {
+					b.secondPawnMove(boardPoint);
+					b.deselectPiece();
 					state=STATE.detect;
 				}
 			}
@@ -489,11 +499,11 @@ public class Game extends Screen{
 				for (Rectangle r:promotablesW.keySet()) {
 					if (r.contains(e.getPoint())) {
 						if (r.contains(e.getPoint())) {
-							Main.b.getPieces().remove(Main.b.pieceAt(promoteSquare));
+							b.getPieces().remove(b.pieceAt(promoteSquare));
 							Piece newPiece=promotablesW.get(r).clone();
 							promotePiece=String.valueOf(newPiece.getType()).toUpperCase();
 							newPiece.setPos(promoteSquare);
-							Main.b.getPieces().add(newPiece);
+							b.getPieces().add(newPiece);
 							promoteSquare=null;
 							state=STATE.detect;
 						}
@@ -502,11 +512,11 @@ public class Game extends Screen{
 			} else {
 				for (Rectangle r:promotablesB.keySet()) {
 					if (r.contains(e.getPoint())) {
-						Main.b.getPieces().remove(Main.b.pieceAt(promoteSquare));
+						b.getPieces().remove(b.pieceAt(promoteSquare));
 						Piece newPiece=promotablesB.get(r).clone();
 						promotePiece=String.valueOf(newPiece.getType()).toUpperCase();
 						newPiece.setPos(promoteSquare);
-						Main.b.getPieces().add(newPiece);
+						b.getPieces().add(newPiece);
 						promoteSquare=null;
 						state=STATE.detect;
 					}
@@ -538,36 +548,49 @@ public class Game extends Screen{
 
 	public void recNotation() {
 		if (whiteTurn) {
-			if (Main.b.getGhost()==null) {
-				String pieceLetter=String.valueOf(Main.b.lastPieceTypeMoved()).toUpperCase();
+			if (b.getGhost()==null) {
+				String pieceLetter=String.valueOf(b.lastPieceTypeMoved()).toUpperCase();
 				if (pieceLetter.equals("P")) {
 					pieceLetter="";
 				}
-				Console.s.print(pieceLetter+Board.pointToNotation(Main.b.lastMoveStart())+" "+capture+Board.pointToNotation(Main.b.lastMoveEnd())+promotePiece+" / ");
+				Console.s.print(pieceLetter+Board.pointToNotation(b.lastMoveStart())+" "+capture+Board.pointToNotation(b.lastMoveEnd())+promotePiece+" / ");
 			} else {
-				Console.s.print(Board.pointToNotation(Main.b.lastMoveStart())+" ("+Board.pointToNotation(Main.b.getGhost())+") "+Board.pointToNotation(Main.b.lastMoveEnd())+promotePiece+" / ");
+				Console.s.print(Board.pointToNotation(b.lastMoveStart())+" ("+Board.pointToNotation(b.getGhost())+") "+Board.pointToNotation(b.lastMoveEnd())+promotePiece+" / ");
 			}
 		} else {
-			if (Main.b.getGhost()==null) {
-				String pieceLetter=String.valueOf(Main.b.lastPieceTypeMoved()).toUpperCase();
+			if (b.getGhost()==null) {
+				String pieceLetter=String.valueOf(b.lastPieceTypeMoved()).toUpperCase();
 				if (pieceLetter.equals("P")) {
 					pieceLetter="";
 				}
-				Console.s.println(pieceLetter+Board.pointToNotation(Main.b.lastMoveStart())+" "+capture+Board.pointToNotation(Main.b.lastMoveEnd())+promotePiece);
+				Console.s.println(pieceLetter+Board.pointToNotation(b.lastMoveStart())+" "+capture+Board.pointToNotation(b.lastMoveEnd())+promotePiece);
 			} else {
-				Console.s.println(Board.pointToNotation(Main.b.lastMoveStart())+" ("+Board.pointToNotation(Main.b.getGhost())+") "+Board.pointToNotation(Main.b.lastMoveEnd())+promotePiece);
+				Console.s.println(Board.pointToNotation(b.lastMoveStart())+" ("+Board.pointToNotation(b.getGhost())+") "+Board.pointToNotation(b.lastMoveEnd())+promotePiece);
 			}
 		}
 		promotePiece="";
 	}
 	
+	public void setInit(){
+		state=STATE.move;
+		checked=false;
+		whiteTurn=true;
+		b.setUp();
+		this.ai=observer.ai();
+		if (ai) {
+			aiColor=(1==rand.nextInt(2));
+			wPersp=!aiColor;
+		} else {
+			wPersp=true;
+		}
+	}
+	
 	public void submit() {
-		illegalMoves.clear();
 		recNotation();
-		state=state.detectMate;
+		state=STATE.detectMate;
 		whiteTurn=!whiteTurn;
-		boolean legalMove=Main.b.playerHasLegalMove(whiteTurn);
-		checked=Main.b.playerInCheck(whiteTurn);
+		boolean legalMove=b.playerHasLegalMove(whiteTurn);
+		checked=b.playerInCheck(whiteTurn);
 		if ((!legalMove)&&checked) {
 			if (whiteTurn) {
 				state=STATE.blackWins;

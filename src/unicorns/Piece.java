@@ -329,14 +329,6 @@ public class Piece {
 		return moveArray;
 	}
 	
-	public Point[] getLegalMoves(char type) {
-		return getPotentialMoves(type,Main.b);
-	}
-	
-	public Point[] getLegalMoves() {
-		return getPotentialMoves(this.type,Main.b);
-	}
-	
 	public Image getImage() {
 		switch (type) {
 			case 'p':

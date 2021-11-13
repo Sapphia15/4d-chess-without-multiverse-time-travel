@@ -20,11 +20,17 @@ public class Board {
 	Piece ghostPawn=null;
 	char lastPieceMoved='x';
 	
+	/**Creates an empty board
+	 * 
+	 */
 	public Board() {
 		
 	}
 	
 	public void setUp() {
+		//reset to an empty board with default values
+		setState(new Board());
+		
 		//setUpPieces
 		for (int i=0; i<4; i++) {
 			for (int k=0;k<4;k++) {
@@ -187,7 +193,9 @@ public class Board {
 	}
 	
 	public void undo() {
-		setState(lastState);
+		if (lastState!=null) {
+			setState(lastState);
+		}
 	}
 	
 	public void setState(Board b) {
@@ -281,11 +289,11 @@ public class Board {
 		} else {
 			king=getBlackKing().getPos();
 		}
-		king.printVals("King");
+		//king.printVals("King");
 		for (Piece p:pieces) {
 			if (p.white!=white) {
 				for (Point move:p.getPotentialMoves(p.getType(),this)) {
-					move.printVals("Move");
+					//move.printVals("Move");
 					if (move.equals(king)){
 						return true;
 					}
