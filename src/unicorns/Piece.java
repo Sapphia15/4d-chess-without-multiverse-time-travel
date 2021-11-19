@@ -330,6 +330,10 @@ public class Piece {
 	}
 	
 	public Image getImage() {
+		return Piece.getImage(type);
+	}
+	
+	public static Image getImage(char type) {
 		switch (type) {
 			case 'p':
 				return Assets.PAWN_B;
@@ -363,6 +367,10 @@ public class Piece {
 				return Assets.KING_W;
 			case 'N':
 				return Assets.KNIGHT_W;
+			case 'g':
+				return Assets.GHOST_B;
+			case 'G':
+				return Assets.GHOST_W;
 		}
 		return null;
 	}

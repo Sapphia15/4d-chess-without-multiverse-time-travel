@@ -8,7 +8,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.awt.Rectangle;
 
@@ -21,6 +20,7 @@ import unicorns.Board;
 import unicorns.Main;
 import unicorns.Panel;
 import unicorns.Piece;
+import unicorns.Sounds;
 
 public class Game extends Screen{
 
@@ -36,13 +36,19 @@ public class Game extends Screen{
 	boolean whiteTurn=true;
 	boolean checked=false;
 	boolean ai=true;
-	Random rand=new Random();
+	
 	boolean aiColor=false;
 	static enum STATE {move,submit,pawnmove,detect,illegal,whiteWins,blackWins,draw,promote,detectPawn,detectMate,analyze};//need to add analyze state still...
 	STATE state=STATE.move;
 	Point promoteSquare=null;
 	String promotePiece="";
 	String capture="";
+	boolean clocks=true;
+	boolean firstMove=true;
+	boolean online=false;
+	long whiteTime=60000*20;
+	long blackTime=60000*20;//20 minutes
+	long timeIndex=0;
 	//TODO need to add clocks!
 	
 	
@@ -60,6 +66,9 @@ public class Game extends Screen{
 	
 	@Override
 	public void paint(Graphics g) {
+		g.setColor(Color.DARK_GRAY);
+		g.fillRect(0, 0, observer.getWidth(), observer.getHeight());
+		g.setColor(Color.black);
 		if (state==STATE.illegal||(state==STATE.move&&checked)) {
 			g.setColor(Color.red);
 			g.fillRect(0, 0, observer.getWidth(), observer.getHeight());
@@ -83,12 +92,23 @@ public class Game extends Screen{
 		int offX=(int)Math.floor(observer.getWidth()/2d)-num/2;
 		int offY=(int)Math.floor(observer.getHeight()/2d)-num/2;
 		if (wPersp) {
-			g.drawImage(Assets.BOARD, offX, offY, offX+num, offY+num, 0, 192, 192, 0, observer);
+			g.drawImage(Assets.BOARD, offX, offY, offX+num, offY+num, 192, 192, 0, 0, observer);
 		} else {
 			g.drawImage(Assets.BOARD, offX,offY,num, num, null);
 		}
 		Font newFont = currentFont.deriveFont((float)sq);
 		g.setFont(newFont);
+		if (clocks) {
+			g.setColor(Color.white);
+			g.fillRoundRect(5, 5, g.getFontMetrics().stringWidth(" White: 20:00  "), (int)Math.floor(sq*3.2),20,20);
+			g.setColor(Color.black);
+			g.drawString("White "+String.format("%01d", (int)Math.floor(whiteTime/60000))+":"+String.format("%01d",(int)Math.floor(whiteTime/1000)%60), 10, sq*2);
+			g.drawString("Black "+String.format("%01d",(int)Math.floor(blackTime/60000))+":"+String.format("%01d",(int)Math.floor(blackTime/1000)%60), 10, sq*3);
+		} else {
+			g.setColor(Color.white);
+			g.fillRoundRect(5, 5, g.getFontMetrics().stringWidth(" White: 20:00  "), (int)Math.floor(sq*1.2),20,20);
+			g.setColor(Color.black);
+		}
 		g.drawString(space,10,sq);
 		
 		Piece selected=b.getSelectedPiece();
@@ -225,22 +245,22 @@ public class Game extends Screen{
 		}
 		
 		if (state==STATE.whiteWins) {
-			g.setColor(new Color(255,255,255,100));
-			g.fillRoundRect(offX+num/2-g.getFontMetrics().stringWidth("White Wins!")/2-gap,offY+num/2, g.getFontMetrics().stringWidth("White Wins!")+gap*2, sq+gap, 20,20);
-			g.setColor(new Color(0,0,0,150));
-			g.drawString("White Wins!",offX+num/2-g.getFontMetrics().stringWidth("White Wins!")/2,offY+num/2+sq);
+			g.setColor(new Color(255,255,255,250));
+			g.fillRoundRect(10,offY+num/2, g.getFontMetrics().stringWidth("White Wins!")+gap*2, sq+gap, 20,20);
+			g.setColor(new Color(0,0,0,250));
+			g.drawString("White Wins!",10+gap,offY+num/2+sq);
 			
 		} else if (state==STATE.blackWins) {
-			g.setColor(new Color(0,0,0,100));
-			g.fillRoundRect(offX+num/2-g.getFontMetrics().stringWidth("Black Wins!")/2-gap,offY+num/2, g.getFontMetrics().stringWidth("Black Wins!")+gap*2, sq+gap, 20,20);
-			g.setColor(new Color(255,255,255,150));
-			g.drawString("Black Wins!",offX+num/2-g.getFontMetrics().stringWidth("Black Wins!")/2,offY+num/2+sq);
+			g.setColor(new Color(0,0,0,250));
+			g.fillRoundRect(10,offY+num/2, g.getFontMetrics().stringWidth("Black Wins!")+gap*2, sq+gap, 20,20);
+			g.setColor(new Color(255,255,255,250));
+			g.drawString("Black Wins!",10+gap,offY+num/2+sq);
 			
 		} else if (state==STATE.draw){
-			g.setColor(new Color(127,127,127,100));
-			g.fillRoundRect(offX+num/2-g.getFontMetrics().stringWidth("Unicorns are amazing! (also it's a draw)")/2-gap,offY+num/2, g.getFontMetrics().stringWidth("Unicorns are amazing! (also it's a draw)")+gap*2, sq+gap, 20,20);
-			g.setColor(new Color(255,100,100,150));
-			g.drawString("Unicorns are amazing! (also it's a draw)",offX+num/2-g.getFontMetrics().stringWidth("Unicorns are amazing! (also it's a draw)")/2,offY+num/2+sq);
+			g.setColor(new Color(127,127,127,250));
+			g.fillRoundRect(10,offY+num/2, g.getFontMetrics().stringWidth("Unicorns are amazing! (also it's a draw)")+gap*2, sq+gap, 20,20);
+			g.setColor(new Color(255,100,100,250));
+			g.drawString("Unicorns are amazing! (also it's a draw)",10+gap,offY+num/2+sq);
 		} else if (state==STATE.promote) {
 			if (whiteTurn) {
 				for (Rectangle r:promotablesW.keySet()) {
@@ -317,6 +337,23 @@ public class Game extends Screen{
 			promotablesB.put(new Rectangle(offX+num+sq,offY+sq*4,sq,sq),new Piece(null,'r'));
 			promotablesB.put(new Rectangle(offX+num+sq,offY+sq*5,sq,sq),new Piece(null,'n'));
 		}
+		if ((state==STATE.move||state==STATE.pawnmove||state==STATE.promote||state==STATE.submit||state==STATE.detect)&&clocks&&!firstMove) {
+			long oldIndex=timeIndex;
+			timeIndex=System.currentTimeMillis();
+			if (whiteTurn) {
+				whiteTime-=timeIndex-oldIndex;
+				if (whiteTime<=0) {
+					whiteTime=0;
+					state=STATE.blackWins;
+				}
+			} else {
+				blackTime-=timeIndex-oldIndex;
+				if (blackTime<=0) {
+					whiteTime=0;
+					state=STATE.whiteWins;
+				}
+			}
+		}
 		if (state==STATE.detect||state==STATE.detectPawn) {
 			Point king=null;
 			if (whiteTurn) {
@@ -348,13 +385,14 @@ public class Game extends Screen{
 			
 		} else if (state==STATE.move&&ai&&whiteTurn==aiColor) {
 			ArrayList<Point[]> legalMoves=b.getAllLegalMoves(whiteTurn);
-			Point[] move=legalMoves.get(rand.nextInt(legalMoves.size()));
+			Point[] move=legalMoves.get(Main.rand.nextInt(legalMoves.size()));
 			b.makeMove(move);
 			state=STATE.submit;
 			
 		} else if (state==STATE.submit&&ai&&whiteTurn==aiColor) {
 			b.deselectPiece();
-			recNotation();
+			submit();
+			/*recNotation();
 			whiteTurn=!whiteTurn;
 			//Console.s.println("searching for legal moves...");
 			
@@ -372,7 +410,7 @@ public class Game extends Screen{
 				state=STATE.move;
 				//Console.s.println(whiteTurn);
 				wPersp=(!wPersp&&!ai)||(ai&&!aiColor);
-			}
+			}*/
 		} else if (state==STATE.promote&&ai&&aiColor==whiteTurn) {
 			Piece newPiece=null;
 			//remove the pawn
@@ -572,25 +610,54 @@ public class Game extends Screen{
 	}
 	
 	public void setInit(){
-		state=STATE.move;
+		state=STATE.detectMate;
 		checked=false;
 		whiteTurn=true;
+		firstMove=true;
 		b.setUp();
+		//b.experimentSetUp();
+		whiteTime=60000*20;
+		blackTime=60000*20;
 		this.ai=observer.ai();
+		this.clocks=observer.clocks();
 		if (ai) {
-			aiColor=(1==rand.nextInt(2));
+			aiColor=(1==Main.rand.nextInt(2));
 			wPersp=!aiColor;
 		} else {
 			wPersp=true;
 		}
+		state=STATE.move;
+	}
+	
+	public Board getBoard() {
+		return this.b;
 	}
 	
 	public void submit() {
-		recNotation();
+		
 		state=STATE.detectMate;
+		recNotation();
+		if (firstMove) {
+			if (!whiteTurn) {
+				firstMove=false;
+				timeIndex=System.currentTimeMillis();
+			}
+		} else if (clocks){
+			long oldIndex=timeIndex;
+			timeIndex=System.currentTimeMillis();
+			new Sounds().playSound("endturn.wav", 0);
+			//3 second move increment and update clock last time before turning over to the next player
+			if (whiteTurn) {
+				whiteTime+=3000-(timeIndex-oldIndex);
+			} else {
+				blackTime+=3000-(timeIndex-oldIndex);
+			}
+			timeIndex=System.currentTimeMillis();
+		}
 		whiteTurn=!whiteTurn;
 		boolean legalMove=b.playerHasLegalMove(whiteTurn);
 		checked=b.playerInCheck(whiteTurn);
+		
 		if ((!legalMove)&&checked) {
 			if (whiteTurn) {
 				state=STATE.blackWins;

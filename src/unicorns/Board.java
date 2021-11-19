@@ -35,12 +35,34 @@ public class Board {
 		for (int i=0; i<4; i++) {
 			for (int k=0;k<4;k++) {
 				pieces.add(new Piece(new Point(new Tuple(new double[] {i,0,k,1})),'P'));
+				
 				pieces.add(new Piece(new Point(new Tuple(new double[] {i,1,k,0})),'P'));
 				
 				pieces.add(new Piece(new Point(new Tuple(new double[] {i,3,k,2})),'p'));
 				pieces.add(new Piece(new Point(new Tuple(new double[] {i,2,k,3})),'p'));
 			}
 		}
+		
+		pieces.remove(pieceAt(new Point(new Tuple(new double[] {1,0,1,1}))));
+		pieces.remove(pieceAt(new Point(new Tuple(new double[] {2,0,1,1}))));
+		pieces.remove(pieceAt(new Point(new Tuple(new double[] {1,0,2,1}))));
+		pieces.remove(pieceAt(new Point(new Tuple(new double[] {2,0,2,1}))));
+		
+		pieces.remove(pieceAt(new Point(new Tuple(new double[] {2,3,2,2}))));
+		pieces.remove(pieceAt(new Point(new Tuple(new double[] {1,3,2,2}))));
+		pieces.remove(pieceAt(new Point(new Tuple(new double[] {2,3,1,2}))));
+		pieces.remove(pieceAt(new Point(new Tuple(new double[] {1,3,1,2}))));
+
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,0,1,1})),'D'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {2,0,1,1})),'D'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,0,2,1})),'D'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {2,0,2,1})),'D'));
+		
+		pieces.add(new Piece(new Point(new Tuple(new double[] {2,3,2,2})),'d'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,3,2,2})),'d'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {2,3,1,2})),'d'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,3,1,2})),'d'));
+		
 		pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,0,1})),'P'));
 		pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,1,1})),'P'));
 		pieces.add(new Piece(new Point(new Tuple(new double[] {2,1,1,1})),'P'));
@@ -90,6 +112,23 @@ public class Board {
 		pieces.add(new Piece(new Point(new Tuple(new double[] {3,3,3,3})),'r'));
 		
 		lastState=this.clone();
+	}
+	
+	public void experimentSetUp(){
+		setState(new Board());
+		pieces.add(new Piece(new Point(new Tuple(new double[] {3,3,3,3})),'K'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {0,2,1,3})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,1,3})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {2,2,1,3})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {3,2,1,3})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {0,2,2,3})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,2,3})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {2,2,2,3})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {3,2,2,3})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,1,1})),'k'));
+		for (Piece p:pieces) {
+			p.firstMove=false;
+		}
 	}
 	
 	public Piece pieceAt(Point p) {
