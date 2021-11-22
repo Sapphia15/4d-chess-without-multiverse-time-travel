@@ -31,6 +31,8 @@ public class Game extends Screen{
 	Panel observer;
 	ConcurrentHashMap<Rectangle,Point> rects=new ConcurrentHashMap<>();
 	Rectangle board=new Rectangle(0,0,1,1);
+	Rectangle menu=new Rectangle(0,0,1,1);
+	Rectangle exit=new Rectangle(0,0,1,1);
 	Board b=new Board();
 	boolean wPersp=true;
 	int oldWidth=0;
@@ -43,6 +45,8 @@ public class Game extends Screen{
 	boolean checked=false;
 	boolean ai=true;
 	boolean simpleBoard=false;
+	boolean sounds=true;
+	boolean highlightMoves=true;
 	
 	boolean oppColor=false;
 	static enum STATE {move,submit,pawnmove,detect,illegal,whiteWins,blackWins,draw,promote,detectPawn,detectMate,analyze};//need to add analyze state still...
@@ -55,6 +59,7 @@ public class Game extends Screen{
 	boolean invertMetaXZ=false;
 	boolean invertMetaYW=false;
 	boolean online=false;
+	boolean showIngameMenu=false;
 	long whiteTime=60000*20;
 	long blackTime=60000*20;//20 minutes
 	long timeIndex=0;
@@ -339,60 +344,62 @@ public class Game extends Screen{
 		}
 		
 		//Console.s.println(b.moveableSpaces().length);
-		for (Point p : b.moveableSpaces()) {
-			int x;
-			int y;
-			int z;
-			int w;
-			if (invertMetaXZ) {
-				x=(int)p.tuple.i(2);
-				
-				z=(int)p.tuple.i(0);
-				
-			} else {
-				x=(int)p.tuple.i(0);
-				
-				z=(int)p.tuple.i(2);
-				
-			}
-			if (invertMetaYW) {
-				
-				y=(int)p.tuple.i(3);
-				
-				w=(int)p.tuple.i(1);
-			} else {
-				
-				y=(int)p.tuple.i(1);
-				
-				w=(int)p.tuple.i(3);
-			}
-			if (b.pieceAt(p)==null) {
-				g.setColor(new Color(0,255,0,100));
-			} else if (state==STATE.move) {
-				g.setColor(new Color(255,0,0,100));	
-			} else {
-				g.setColor(new Color(0,0,0,0));
-			}
-			if (b.getGhost()!=null) {
-				
-				if (p.equals(b.getGhost())&&String.valueOf(b.getSelectedPiece().getType()).toUpperCase().equals("P")) {
-					if (p.distance(b.getSelectedPiece().getPos())>1) {//make sure the pawn move is diagonal
-						g.setColor(new Color(255,0,0,100));	
+		if (highlightMoves) {
+			for (Point p : b.moveableSpaces()) {
+				int x;
+				int y;
+				int z;
+				int w;
+				if (invertMetaXZ) {
+					x=(int)p.tuple.i(2);
+					
+					z=(int)p.tuple.i(0);
+					
+				} else {
+					x=(int)p.tuple.i(0);
+					
+					z=(int)p.tuple.i(2);
+					
+				}
+				if (invertMetaYW) {
+					
+					y=(int)p.tuple.i(3);
+					
+					w=(int)p.tuple.i(1);
+				} else {
+					
+					y=(int)p.tuple.i(1);
+					
+					w=(int)p.tuple.i(3);
+				}
+				if (b.pieceAt(p)==null) {
+					g.setColor(new Color(0,255,0,100));
+				} else if (state==STATE.move) {
+					g.setColor(new Color(255,0,0,100));	
+				} else {
+					g.setColor(new Color(0,0,0,0));
+				}
+				if (b.getGhost()!=null) {
+					
+					if (p.equals(b.getGhost())&&String.valueOf(b.getSelectedPiece().getType()).toUpperCase().equals("P")) {
+						if (p.distance(b.getSelectedPiece().getPos())>1) {//make sure the pawn move is diagonal
+							g.setColor(new Color(255,0,0,100));	
+						}
 					}
 				}
+				
+				if (wPersp) {
+					y=3-y;
+					w=3-w;
+				} else {
+					x=3-x;
+					z=3-z;
+				}
+				
+				
+				
+				g.fillRect(offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4);
 			}
-			
-			if (wPersp) {
-				y=3-y;
-				w=3-w;
-			} else {
-				x=3-x;
-				z=3-z;
-			}
-			
-			
-			
-			g.fillRect(offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4);
 		}
 		
 		if (state==STATE.whiteWins) {
@@ -427,7 +434,16 @@ public class Game extends Screen{
 				}
 			}
 		}
-		
+		if (showIngameMenu) {
+			g.setColor(Color.DARK_GRAY);
+			g.fillRoundRect(menu.x, menu.y, menu.width, menu.height, 20, 20);
+			g.setColor(Color.pink);
+			g.drawString("Exit", exit.x, exit.y+g.getFontMetrics().getHeight());
+			exit.setBounds(exit.x, exit.y, g.getFontMetrics().stringWidth("Exit"),g.getFontMetrics().getHeight());
+			int hotkeyWidth=(int) (num/3.84);
+			g.drawImage(Assets.HOTKEYS, (int)menu.getCenterX()-hotkeyWidth/2, exit.y+g.getFontMetrics().getHeight()*2, hotkeyWidth, hotkeyWidth, null);
+			
+		}
 	}
 
 	@Override
@@ -453,6 +469,9 @@ public class Game extends Screen{
 			int offY=(int)Math.floor(observer.getHeight()/2d)-num/2;
 			rects.clear();
 			board=new Rectangle(offX,offY,num,num);
+			menu=new Rectangle((int)board.getCenterX()-sq4,(int)board.getCenterY()-sq4,sq*8,sq*10);
+			exit.setLocation(menu.x+10, menu.y+10);
+			//menu buttons and stuff
 			for (int i=0; i<4;i++) {
 				for (int j=0; j<4;j++) {
 					for (int k=0; k<4;k++) {
@@ -633,13 +652,26 @@ public class Game extends Screen{
 			invertMetaYW=!invertMetaYW;
 		} else if (e.getKeyCode()==KeyEvent.VK_B) {
 			simpleBoard=!simpleBoard;
+		} else if (e.getKeyCode()==KeyEvent.VK_ESCAPE) {
+			showIngameMenu=!showIngameMenu;
+		} else if (e.getKeyCode()==KeyEvent.VK_S) {
+			sounds=!sounds;
+		} else if (e.getKeyCode()==KeyEvent.VK_H) {
+			highlightMoves=!highlightMoves;
 		}
 	}
 	
 	
 	public void mousePressed(MouseEvent e) {
 		//Console.s.println("mouse pressed");
-		if (board.contains(e.getPoint())){
+		if (showIngameMenu) {
+			if (exit.contains(e.getPoint())) {
+				if (online) {
+					observer.exitOnlineGame();
+				}
+				observer.setScreen("title");
+			}
+		} else if (board.contains(e.getPoint())){
 			Point boardPoint=screenToBoard(e.getX(),e.getY());
 			if (state==STATE.move && !((ai||online)&&whiteTurn==oppColor)) {
 				//Console.s.println("clicked board");
@@ -834,6 +866,9 @@ public class Game extends Screen{
 			}
 		}
 		recNotation();
+		if (sounds) {
+			Main.sounds.playSound("endturn.wav", 0);
+		}
 		if (firstMove) {
 			if (!whiteTurn) {
 				firstMove=false;
@@ -842,7 +877,7 @@ public class Game extends Screen{
 		} else if (clocks){
 			long oldIndex=timeIndex;
 			timeIndex=System.currentTimeMillis();
-			new Sounds().playSound("endturn.wav", 0);
+			
 			//3 second move increment and update clock last time before turning over to the next player
 			if (whiteTurn) {
 				whiteTime+=3000-(timeIndex-oldIndex);
@@ -920,5 +955,14 @@ public class Game extends Screen{
 	
 	public long getBlackTime() {
 		return blackTime;
+	}
+	
+	public void disconnect() {
+		Main.err.println("Opponent dissconnected from game!");
+		if (oppColor) {
+			state=STATE.blackWins;
+		} else {
+			state=STATE.whiteWins;
+		}
 	}
 }

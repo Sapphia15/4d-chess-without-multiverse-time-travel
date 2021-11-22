@@ -83,6 +83,13 @@ public class ServerController extends Controller{
 				r.set("type", "post");
 				partner.queueProcessRequest(r);
 			break;
+			case "exit":
+				partner.queueProcessRequest(new Request("post","disconnect"));
+				partner=null;
+				Server.games.remove(game);
+				Console.s.println("Game removed:\n  Code: "+game.getCode());
+				game=null;
+			break;
 		}
 		
 	}

@@ -14,6 +14,7 @@ public class Main {
 	
 	public static final Console err=new Console();
 	public static final Random rand=new Random();
+	public static final Sounds sounds=new Sounds();
 	
 	public static void main(String[] unicorns) {
 		Console.s.setTitle("4d Chess Without Multiverse Time Travel");
@@ -21,7 +22,7 @@ public class Main {
 		err.setTitle("Errors and Debug");
 		err.setTheme(Console.theme.shell2);
 		//err.setVisible(false);
-		new Sounds().setSourcePath("assets/");
+		sounds.setSourcePath("assets/");
 		new Assets();
 		//Console.s.println(new Point(new Tuple(new double[] {2,3,1,3})).equals(new Point(new Tuple(new double[] {2,3,1,3}))));
 		Frame f=new Frame();

@@ -74,7 +74,10 @@ public class ClientController extends Controller {
 					Main.err.println("Failed to join game.");
 				}
 			break;
-			
+			case "disconnect":
+				observer.getGame().disconnect();
+				exitGame();
+			break;
 		}
 		
 	}
@@ -112,5 +115,9 @@ public class ClientController extends Controller {
 		cReq.set("clocks",clocks);
 		queueProcessRequest(cReq);
 	}
-	
+	public void exitGame() {
+		Request exitReq=new Request("post","exit");
+		observer.setOnline(false);
+		queueProcessRequest(exitReq);
+	}
 }

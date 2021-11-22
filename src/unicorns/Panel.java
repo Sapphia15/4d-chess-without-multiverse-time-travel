@@ -101,6 +101,10 @@ public class Panel extends SPanel{
 		getGame().confirm(oppTime);
 	}
 	
+	public void exitOnlineGame() {
+		controller.exitGame();
+	}
+	
 	/**
 	 * 
 	 */
