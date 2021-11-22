@@ -98,6 +98,10 @@ public class ServerController extends Controller{
 	
 	public void onDisconnect() {
 		Console.s.println("ID: "+clientID+" Address: "+s.getInetAddress().getHostAddress()+" disconnected.");
+		if (partner!=null) {
+			partner.queueProcessRequest(new Request("post","disconnect"));
+			partner=null;
+		}
 		if (game!=null) {
 			Server.games.remove(game);
 			Console.s.println("Game removed:\n  Code: "+game.getCode());
