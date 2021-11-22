@@ -75,8 +75,8 @@ public class Main {
 				case "help":
 					if (args.get(1).equals("ingame")) {
 						cmd.println("press H to toggle highlighting of spaces that the selected piece can move to");
-						cmd.println("press I to invert the view of Y and W dimensions");
-						cmd.println("press K to invert the view of X and Z dimensions");
+						cmd.println("press I to invert the view of X and Z dimensions");
+						cmd.println("press K to invert the view of Y and W dimensions");
 						cmd.println("press P to toggle white/black perspectives");
 						cmd.println("press Z to undo a move that hasn't been submitted yet");
 						cmd.println("press F to submit a move");
