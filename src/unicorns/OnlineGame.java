@@ -1,8 +1,12 @@
 package unicorns;
 
+import unicorns.net.ServerController;
+
 public class OnlineGame {
 	int whiteID;
 	int blackID;
+	ServerController white;
+	ServerController black;
 	String code;
 	boolean firstTurn=true;
 	long whiteTime=60000*20;
@@ -11,30 +15,36 @@ public class OnlineGame {
 	boolean whiteTurn=true;
 	long clocks=-1;
 	
-	public OnlineGame(int id,boolean white,String code,long clocks) {
+	public OnlineGame(ServerController s,boolean white,String code,long clocks) {
 		if (white) {
-			whiteID=id;
+			whiteID=s.getClientID();
 			blackID=-1;
+			this.white=s;
 		} else {
 			whiteID=-1;
-			blackID=id;
+			blackID=s.getClientID();
+			black=s;
 		}
 		this.code=code;
 		this.clocks=clocks;
+		whiteTime=clocks;
+		blackTime=clocks;
 	}
 	
-	public boolean connect(int id) {
+	public boolean connect(ServerController s) {
 		if (whiteID==-1) {
-			blackID=id;
+			whiteID=s.getClientID();
+			white=s;
 		} else if (blackID==-1) {
-			whiteID=id;
+			blackID=s.getClientID();
+			black=s;
 		} else {
 			return false;
 		}
 		return true;
 	}
 	
-	public int getPlayerID(boolean white) {
+	public long getPlayerID(boolean white) {
 		if (white) {
 			return whiteID;
 		} else {
@@ -52,6 +62,22 @@ public class OnlineGame {
 	
 	public String getCode() {
 		return code;
+	}
+	
+	public long getWhiteTime() {
+		return whiteTime;
+	}
+	
+	public long getBlackTime() {
+		return blackTime;
+	}
+	
+	public ServerController getWhite() {
+		return white;
+	}
+	
+	public ServerController getBlack() {
+		return black;
 	}
 	
 }

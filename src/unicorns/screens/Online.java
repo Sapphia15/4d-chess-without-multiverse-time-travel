@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Hashtable;
 
+import gameutil.text.Console;
 import graphics.screen.Screen;
 import unicorns.Main;
 import unicorns.Panel;
@@ -103,8 +104,16 @@ public class Online extends Screen {
 			g.drawImage(Piece.getImage(c), x, y, 40, 40,null);
 			x=x+50;
 		}
-		g.setColor(col2);
+		
+		if(observer.clocks()) {
+			g.setColor(Color.green);
+		} else {
+			g.setColor(Color.red);
+		}
 		g.fillRoundRect(clocks.x, clocks.y, clocks.width, clocks.height,20,20);
+		
+		g.setColor(col2);
+		
 		g.fillRoundRect(menu.x, menu.y, menu.width, menu.height,20,20);
 		g.fillRoundRect(join.x, join.y, join.width, join.height,20,20);
 		g.fillRoundRect(create.x, create.y, create.width, create.height,20,20);
@@ -169,11 +178,14 @@ public class Online extends Screen {
 			if (observer.clocks()) {
 				clocks=60000*20;
 			}
+			Main.err.println("Clocks: "+clocks);
+			Main.err.println("White: "+ white);
 			observer.createGame(white, clocks);
 		} else if (clocks.contains(e.getPoint())) {
 			observer.setClocks(!observer.clocks());
 		} else if (join.contains(e.getPoint())) {
 			//attempt to join a game with the current code
+			observer.join(code);
 		}
 	}
 	

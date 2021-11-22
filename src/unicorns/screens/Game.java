@@ -8,7 +8,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.swing.ImageIcon;
+
 import java.awt.Rectangle;
 
 import gameutil.math.geom.Point;
@@ -25,19 +29,22 @@ import unicorns.Sounds;
 public class Game extends Screen{
 
 	Panel observer;
-	Hashtable<Rectangle,Point> rects=new Hashtable<>();
+	ConcurrentHashMap<Rectangle,Point> rects=new ConcurrentHashMap<>();
 	Rectangle board=new Rectangle(0,0,1,1);
 	Board b=new Board();
 	boolean wPersp=true;
 	int oldWidth=0;
 	int oldHeight=0;
 	boolean oldPersp=true;
+	boolean oldInvertXZ=false;
+	boolean oldInvertYW=false;
 	String space="a0α0";
 	boolean whiteTurn=true;
 	boolean checked=false;
 	boolean ai=true;
+	boolean simpleBoard=false;
 	
-	boolean aiColor=false;
+	boolean oppColor=false;
 	static enum STATE {move,submit,pawnmove,detect,illegal,whiteWins,blackWins,draw,promote,detectPawn,detectMate,analyze};//need to add analyze state still...
 	STATE state=STATE.move;
 	Point promoteSquare=null;
@@ -45,6 +52,8 @@ public class Game extends Screen{
 	String capture="";
 	boolean clocks=true;
 	boolean firstMove=true;
+	boolean invertMetaXZ=false;
+	boolean invertMetaYW=false;
 	boolean online=false;
 	long whiteTime=60000*20;
 	long blackTime=60000*20;//20 minutes
@@ -58,7 +67,7 @@ public class Game extends Screen{
 	public Game(Panel observer) {
 		this.observer=observer;
 		if (ai) {
-			wPersp=!aiColor;
+			wPersp=!oppColor;
 		}
 		b.setUp();
 		
@@ -91,10 +100,16 @@ public class Game extends Screen{
 		int gap3d4=3*gap/4;
 		int offX=(int)Math.floor(observer.getWidth()/2d)-num/2;
 		int offY=(int)Math.floor(observer.getHeight()/2d)-num/2;
-		if (wPersp) {
-			g.drawImage(Assets.BOARD, offX, offY, offX+num, offY+num, 192, 192, 0, 0, observer);
+		Image boardImg;
+		if (simpleBoard) {
+			boardImg=Assets.BOARD_S;
 		} else {
-			g.drawImage(Assets.BOARD, offX,offY,num, num, null);
+			boardImg=Assets.BOARD;
+		}
+		if (wPersp) {
+			g.drawImage(boardImg, offX, offY, offX+num, offY+num, 192, 192, 0, 0, observer);
+		} else {
+			g.drawImage(boardImg, offX,offY,num, num, null);
 		}
 		Font newFont = currentFont.deriveFont((float)sq);
 		g.setFont(newFont);
@@ -113,10 +128,34 @@ public class Game extends Screen{
 		
 		Piece selected=b.getSelectedPiece();
 		if (selected!=null) {
-			int x=selected.getX();
-			int y=selected.getY();
-			int z=selected.getZ();
-			int w=selected.getW();
+			
+			int x;
+			int y;
+			int z;
+			int w;
+			if (invertMetaXZ) {
+				x=selected.getZ();
+				
+				z=selected.getX();
+				
+			} else {
+				x=selected.getX();
+				
+				z=selected.getZ();
+				
+			}
+			
+			if (invertMetaYW) {
+				
+				y=selected.getW();
+				
+				w=selected.getY();
+			} else {
+				
+				y=selected.getY();
+				
+				w=selected.getW();
+			}
 			if (wPersp) {
 				y=3-y;
 				w=3-w;
@@ -132,10 +171,32 @@ public class Game extends Screen{
 		
 		if (lastMoveStart!=null) {
 			
-			int x=(int)lastMoveStart.tuple.i(0);
-			int y=(int)lastMoveStart.tuple.i(1);
-			int z=(int)lastMoveStart.tuple.i(2);
-			int w=(int)lastMoveStart.tuple.i(3);
+			int x;
+			int y;
+			int z;
+			int w;
+			if (invertMetaXZ) {
+				x=(int)lastMoveStart.tuple.i(2);
+				
+				z=(int)lastMoveStart.tuple.i(0);
+				
+			} else {
+				x=(int)lastMoveStart.tuple.i(0);
+				
+				z=(int)lastMoveStart.tuple.i(2);
+				
+			}
+			if (invertMetaYW) {
+				
+				y=(int)lastMoveStart.tuple.i(3);
+				
+				w=(int)lastMoveStart.tuple.i(1);
+			} else {
+				
+				y=(int)lastMoveStart.tuple.i(1);
+				
+				w=(int)lastMoveStart.tuple.i(3);
+			}
 			g.setColor(new Color(255,255,150));
 			
 			if (wPersp) {
@@ -152,10 +213,32 @@ public class Game extends Screen{
 		Point lastMoveEnd=b.lastMoveEnd();
 		if (lastMoveEnd!=null) {
 			
-			int x=(int)lastMoveEnd.tuple.i(0);
-			int y=(int)lastMoveEnd.tuple.i(1);
-			int z=(int)lastMoveEnd.tuple.i(2);
-			int w=(int)lastMoveEnd.tuple.i(3);
+			int x;
+			int y;
+			int z;
+			int w;
+			if (invertMetaXZ) {
+				x=(int)lastMoveEnd.tuple.i(2);
+				
+				z=(int)lastMoveEnd.tuple.i(0);
+				
+			} else {
+				x=(int)lastMoveEnd.tuple.i(0);
+				
+				z=(int)lastMoveEnd.tuple.i(2);
+				
+			}
+			if (invertMetaYW) {
+				
+				y=(int)lastMoveEnd.tuple.i(3);
+				
+				w=(int)lastMoveEnd.tuple.i(1);
+			} else {
+				
+				y=(int)lastMoveEnd.tuple.i(1);
+				
+				w=(int)lastMoveEnd.tuple.i(3);
+			}
 			g.setColor(new Color(255,255,150));
 			
 			if (wPersp) {
@@ -170,10 +253,33 @@ public class Game extends Screen{
 		}
 		
 		for (Piece p : b.getPieces()) {
-			int x=p.getX();
-			int y=p.getY();
-			int z=p.getZ();
-			int w=p.getW();
+			int x;
+			int y;
+			int z;
+			int w;
+			if (invertMetaXZ) {
+				x=p.getZ();
+				
+				z=p.getX();
+				
+			} else {
+				x=p.getX();
+				
+				z=p.getZ();
+				
+			}
+			
+			if (invertMetaYW) {
+				
+				y=p.getW();
+				
+				w=p.getY();
+			} else {
+				
+				y=p.getY();
+				
+				w=p.getW();
+			}
 			if (wPersp) {
 				y=3-y;
 				w=3-w;
@@ -192,10 +298,32 @@ public class Game extends Screen{
 				ghost=Assets.GHOST_B;
 			}
 			Point p=b.getGhost();
-			int x=(int)p.tuple.i(0);
-			int y=(int)p.tuple.i(1);
-			int z=(int)p.tuple.i(2);
-			int w=(int)p.tuple.i(3);
+			int x;
+			int y;
+			int z;
+			int w;
+			if (invertMetaXZ) {
+				x=(int)p.tuple.i(2);
+				
+				z=(int)p.tuple.i(0);
+				
+			} else {
+				x=(int)p.tuple.i(0);
+				
+				z=(int)p.tuple.i(2);
+				
+			}
+			if (invertMetaYW) {
+				
+				y=(int)p.tuple.i(3);
+				
+				w=(int)p.tuple.i(1);
+			} else {
+				
+				y=(int)p.tuple.i(1);
+				
+				w=(int)p.tuple.i(3);
+			}
 			
 			if (wPersp) {
 				y=3-y;
@@ -212,11 +340,32 @@ public class Game extends Screen{
 		
 		//Console.s.println(b.moveableSpaces().length);
 		for (Point p : b.moveableSpaces()) {
-			
-			int x=(int)p.tuple.i(0);
-			int y=(int)p.tuple.i(1);
-			int z=(int)p.tuple.i(2);
-			int w=(int)p.tuple.i(3);
+			int x;
+			int y;
+			int z;
+			int w;
+			if (invertMetaXZ) {
+				x=(int)p.tuple.i(2);
+				
+				z=(int)p.tuple.i(0);
+				
+			} else {
+				x=(int)p.tuple.i(0);
+				
+				z=(int)p.tuple.i(2);
+				
+			}
+			if (invertMetaYW) {
+				
+				y=(int)p.tuple.i(3);
+				
+				w=(int)p.tuple.i(1);
+			} else {
+				
+				y=(int)p.tuple.i(1);
+				
+				w=(int)p.tuple.i(3);
+			}
 			if (b.pieceAt(p)==null) {
 				g.setColor(new Color(0,255,0,100));
 			} else if (state==STATE.move) {
@@ -240,6 +389,8 @@ public class Game extends Screen{
 				x=3-x;
 				z=3-z;
 			}
+			
+			
 			
 			g.fillRect(offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4);
 		}
@@ -281,10 +432,12 @@ public class Game extends Screen{
 
 	@Override
 	public void update() {
-		if (oldWidth!=observer.getWidth()||oldHeight!=observer.getHeight()||oldPersp!=wPersp) {
+		if (oldWidth!=observer.getWidth()||oldHeight!=observer.getHeight()||oldPersp!=wPersp||oldInvertXZ!=invertMetaXZ||oldInvertYW!=invertMetaYW) {
 			oldPersp=wPersp;
 			oldWidth=observer.getWidth();
 			oldHeight=observer.getHeight();
+			oldInvertXZ=invertMetaXZ;
+			oldInvertYW=invertMetaYW;
 			int num=384;
 			int sq=22;
 			int gap=8;
@@ -308,6 +461,18 @@ public class Game extends Screen{
 							int y=j;
 							int z=k;
 							int w=n;
+							if (invertMetaXZ) {
+								x=k;
+								
+								z=i;
+								
+							}
+							if (invertMetaYW) {
+								
+								y=n;
+								
+								w=j;
+							}
 							if (wPersp) {
 								y=3-y;
 								w=3-w;
@@ -315,8 +480,18 @@ public class Game extends Screen{
 								x=3-x;
 								z=3-z;
 							}
+							
+							
+							
 							rects.put(new Rectangle(offX+x*sq+z*(gap3d4+sq4)+gap,offY+y*sq+gap+w*(gap3d4+sq4),sq-gap/4,sq-gap/4),new Point(new Tuple(new double[] {i,j,k,n})));
 						}
+					}
+				}
+				java.awt.Point mouse=observer.getMousePosition();
+				if (mouse!=null&&board.contains(mouse)) {
+					Point boardPoint=screenToBoard((int)mouse.getX(),(int)mouse.getY());
+					if (boardPoint!=null&&Board.contains(boardPoint)) {
+						space=Board.pointToNotation(boardPoint);
 					}
 				}
 			}
@@ -378,18 +553,18 @@ public class Game extends Screen{
 				} else {
 					state=STATE.submit;
 				}
-			} else if (ai&&whiteTurn==aiColor) {
+			} else if (ai&&whiteTurn==oppColor) {
 				b.undo();
 				state=STATE.move;
 			}
 			
-		} else if (state==STATE.move&&ai&&whiteTurn==aiColor) {
+		} else if (state==STATE.move&&ai&&whiteTurn==oppColor) {
 			ArrayList<Point[]> legalMoves=b.getAllLegalMoves(whiteTurn);
 			Point[] move=legalMoves.get(Main.rand.nextInt(legalMoves.size()));
 			b.makeMove(move);
 			state=STATE.submit;
 			
-		} else if (state==STATE.submit&&ai&&whiteTurn==aiColor) {
+		} else if (state==STATE.submit&&ai&&whiteTurn==oppColor) {
 			b.deselectPiece();
 			submit();
 			/*recNotation();
@@ -411,12 +586,12 @@ public class Game extends Screen{
 				//Console.s.println(whiteTurn);
 				wPersp=(!wPersp&&!ai)||(ai&&!aiColor);
 			}*/
-		} else if (state==STATE.promote&&ai&&aiColor==whiteTurn) {
+		} else if (state==STATE.promote&&ai&&oppColor==whiteTurn) {
 			Piece newPiece=null;
 			//remove the pawn
 			b.getPieces().remove(b.pieceAt(promoteSquare));
 			//for the sake of simplicity, ai will always promote to queen. It's probably the best in most situations anyway.
-			if (aiColor) {
+			if (oppColor) {
 				newPiece=new Piece(promoteSquare,'Q');
 			} else {
 				newPiece=new Piece(promoteSquare,'q');
@@ -430,11 +605,11 @@ public class Game extends Screen{
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode()==KeyEvent.VK_P) {
 			wPersp=!wPersp;
-		} else if (e.getKeyCode()==KeyEvent.VK_F&&!(ai&&whiteTurn==aiColor&&(!(state==STATE.blackWins||state==STATE.whiteWins||state==STATE.draw)))) {
+		} else if (e.getKeyCode()==KeyEvent.VK_F&&!(ai&&whiteTurn==oppColor&&(!(state==STATE.blackWins||state==STATE.whiteWins||state==STATE.draw)))) {
 			if (state==STATE.pawnmove) {
 				b.deselectPiece();
 				state=STATE.detectPawn;
-			} else if (state==STATE.submit&&(!ai||whiteTurn!=aiColor)) {
+			} else if (state==STATE.submit&&(!(ai||online)||whiteTurn!=oppColor)) {
 				submit();
 				
 			} else if (state==STATE.blackWins||state==STATE.whiteWins||state==STATE.draw) {
@@ -452,6 +627,12 @@ public class Game extends Screen{
 			capture="";
 			state=STATE.move;
 			b.undo();
+		} else if (e.getKeyCode()==KeyEvent.VK_I) {
+			invertMetaXZ=!invertMetaXZ;
+		} else if (e.getKeyCode()==KeyEvent.VK_K) {
+			invertMetaYW=!invertMetaYW;
+		} else if (e.getKeyCode()==KeyEvent.VK_B) {
+			simpleBoard=!simpleBoard;
 		}
 	}
 	
@@ -460,7 +641,7 @@ public class Game extends Screen{
 		//Console.s.println("mouse pressed");
 		if (board.contains(e.getPoint())){
 			Point boardPoint=screenToBoard(e.getX(),e.getY());
-			if (state==STATE.move && !(ai&&whiteTurn==aiColor)) {
+			if (state==STATE.move && !((ai||online)&&whiteTurn==oppColor)) {
 				//Console.s.println("clicked board");
 				Piece p=b.pieceAt(boardPoint);
 				if (p!=null) {
@@ -614,15 +795,23 @@ public class Game extends Screen{
 		checked=false;
 		whiteTurn=true;
 		firstMove=true;
+		this.online=observer.isOnline();
 		b.setUp();
 		//b.experimentSetUp();
-		whiteTime=60000*20;
-		blackTime=60000*20;
+		if (observer.clocks()) {
+			whiteTime=60000*20;
+			blackTime=60000*20;
+			clocks=true;
+		} else {
+			clocks=false;
+		}
 		this.ai=observer.ai();
 		this.clocks=observer.clocks();
 		if (ai) {
-			aiColor=(1==Main.rand.nextInt(2));
-			wPersp=!aiColor;
+			oppColor=(1==Main.rand.nextInt(2));
+			wPersp=!oppColor;
+		} else if (online){
+			wPersp=!oppColor;
 		} else {
 			wPersp=true;
 		}
@@ -636,6 +825,14 @@ public class Game extends Screen{
 	public void submit() {
 		
 		state=STATE.detectMate;
+		char promoteChar='x';
+		if (promotePiece.length()>=1) {
+			if (whiteTurn) {
+				promoteChar=promotePiece.toUpperCase().charAt(0);
+			} else {
+				promoteChar=promotePiece.toLowerCase().charAt(0);
+			}
+		}
 		recNotation();
 		if (firstMove) {
 			if (!whiteTurn) {
@@ -653,11 +850,53 @@ public class Game extends Screen{
 				blackTime+=3000-(timeIndex-oldIndex);
 			}
 			timeIndex=System.currentTimeMillis();
+			
 		}
-		whiteTurn=!whiteTurn;
-		boolean legalMove=b.playerHasLegalMove(whiteTurn);
-		checked=b.playerInCheck(whiteTurn);
 		
+		whiteTurn=!whiteTurn;
+		if (online&&whiteTurn==oppColor) {
+			
+			if (b.getGhost()==null) {
+				
+				observer.submitOnlineMove(new Point[] {b.lastMoveStart(),b.lastMoveEnd()},promoteChar);
+			} else {
+				observer.submitOnlineMove(new Point[] {b.lastMoveStart(),b.lastMoveEnd(),b.getGhost()},promoteChar);
+			}
+			
+		}
+		
+		checked=b.playerInCheck(whiteTurn);
+		if (!online||whiteTurn==!oppColor){
+			boolean legalMove=b.playerHasLegalMove(whiteTurn);
+			
+			if ((!legalMove)&&checked) {
+				if (whiteTurn) {
+					state=STATE.blackWins;
+				} else {
+					state=STATE.whiteWins;
+				}
+			} else if (!legalMove) {
+				state=STATE.draw;
+			} else {
+				state=STATE.move;
+				if (!(ai||online)) {
+					wPersp=!wPersp;
+				}
+			}
+		}
+	}
+	
+	public void makeMove(Point[] p,char promote) {
+		observer.getBoard().makeMove(p,promote);
+		submit();
+	}
+	
+	public void setOppColor(boolean white) {
+		oppColor=white;
+	}
+	
+	public void confirm(long oppTime) {
+		boolean legalMove=b.playerHasLegalMove(whiteTurn);
 		if ((!legalMove)&&checked) {
 			if (whiteTurn) {
 				state=STATE.blackWins;
@@ -667,9 +906,19 @@ public class Game extends Screen{
 		} else if (!legalMove) {
 			state=STATE.draw;
 		} else {
+			if (whiteTurn) {
+				whiteTime=oppTime;
+			}else {
+				blackTime=oppTime;
+			}
 			state=STATE.move;
-			
-			wPersp=(!wPersp&&!ai)||(ai&&!aiColor);
 		}
+	}
+	public long getWhiteTime() {
+		return whiteTime;
+	}
+	
+	public long getBlackTime() {
+		return blackTime;
 	}
 }

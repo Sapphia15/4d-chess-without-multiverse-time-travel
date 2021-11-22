@@ -25,6 +25,7 @@ public class Server extends net.Server{
 		Console.s.setTheme(Console.theme.shell2);
 		Console.s.setTitle("4d Chess Server");
 		Console.s.println("Server starting...");
+		Console.s.setAutoScroll(true);
 		try {
 			server=new Server(new ServerSocket(25565),-1);
 			Console.s.println("Server started");
@@ -47,8 +48,8 @@ public class Server extends net.Server{
 		}
 	}
 	
-	public static OnlineGame createGame(int id,boolean white,long clocks) {
-		OnlineGame game=new OnlineGame(id,white,generateCode(),clocks);
+	public static OnlineGame createGame(ServerController s,boolean white,long clocks) {
+		OnlineGame game=new OnlineGame(s,white,generateCode(),clocks);
 		games.add(game);
 		return game;
 	}

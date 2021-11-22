@@ -20,8 +20,9 @@ public class Main {
 		Console.s.println("4d Chess Without Multiverse Time Travel");
 		err.setTitle("Errors and Debug");
 		err.setTheme(Console.theme.shell2);
-		err.setVisible(false);
+		//err.setVisible(false);
 		new Sounds().setSourcePath("assets/");
+		new Assets();
 		//Console.s.println(new Point(new Tuple(new double[] {2,3,1,3})).equals(new Point(new Tuple(new double[] {2,3,1,3}))));
 		Frame f=new Frame();
 		f.setLocationRelativeTo(null);

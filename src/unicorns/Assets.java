@@ -1,12 +1,14 @@
 package unicorns;
 
 import java.awt.Image;
+import java.net.URLClassLoader;
 
 import javax.swing.ImageIcon;
 
 public class Assets {
 	
-	public static final Image BOARD=new ImageIcon("assets/board.png").getImage();
+	public static Image BOARD=new ImageIcon("assets/board.png").getImage();
+	public static Image BOARD_S=new ImageIcon("assets/boardS.png").getImage();
 	
 	public static final Image GHOST_W=new ImageIcon("assets/GhostW.png").getImage();
 	public static final Image PAWN_W=new ImageIcon("assets/PawnW.png").getImage();

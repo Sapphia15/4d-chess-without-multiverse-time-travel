@@ -116,6 +116,7 @@ public class Board {
 	
 	public void experimentSetUp(){
 		setState(new Board());
+		pieces.clear();
 		pieces.add(new Piece(new Point(new Tuple(new double[] {3,3,3,3})),'K'));
 		pieces.add(new Piece(new Point(new Tuple(new double[] {0,2,1,3})),'P'));
 		pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,1,3})),'P'));
@@ -559,12 +560,20 @@ public class Board {
 		return makeMove(start,end,null);
 	}
 	
-	public boolean makeMove(Point[] move) {
+	public boolean makeMove(Point[] move,char promote) {
 		if (move.length==2) {
-			return makeMove(move[0],move[1]);
+			return makeMove(move[0],move[1],null,promote);
 		} else {
 			//the only other case is a move length of three (a pawn move that moves two spaces)
-			return makeMove(move[0],move[1],move[2]);
+			return makeMove(move[0],move[1],move[2],promote);
 		}
+	}
+	
+	public boolean makeMove(Point[] move) {
+		char q = 'q';
+		if (pieceAt(move[0]).white) {
+			q='Q';
+		}
+		return makeMove(move,q);
 	}
 }

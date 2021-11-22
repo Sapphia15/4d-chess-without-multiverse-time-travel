@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import gameutil.math.geom.Point;
 import graphics.screen.SPanel;
 import unicorns.net.ClientController;
 import unicorns.screens.Game;
@@ -15,6 +16,7 @@ public class Panel extends SPanel{
 
 	boolean ai;
 	boolean clocks=true;
+	boolean online;
 	ClientController controller;
 	
 	public Panel(Frame observer) {
@@ -43,6 +45,14 @@ public class Panel extends SPanel{
 		this.ai=ai;
 	}
 	
+	public void setOnline(boolean online) {
+		this.online=online;
+	}
+	
+	public boolean isOnline() {
+		return online;
+	}
+	
 	public boolean clocks() {
 		return clocks;
 	}
@@ -64,7 +74,31 @@ public class Panel extends SPanel{
 	}
 	
 	public void createGame(boolean white,long clocks) {
-		controller.createGame(ai, serialVersionUID);
+		controller.createGame(white, clocks);
+	}
+	
+	public void join(String code) {
+		controller.sendCode(code);
+	}
+
+	public void makeMove(Point[] move,char promote) {
+		getGame().makeMove(move,promote);
+	}
+	
+	public void makeMove(Point[] move) {
+		getGame().makeMove(move,'x');
+	}
+	
+	public void submitOnlineMove(Point[] move,char promote) {
+		controller.sendMove(move,promote, System.currentTimeMillis());
+	}
+	
+	public void submitOnlineMove(Point[] move) {
+		submitOnlineMove(move,'x');
+	}
+	
+	public void confirm(long oppTime) {
+		getGame().confirm(oppTime);
 	}
 	
 	/**

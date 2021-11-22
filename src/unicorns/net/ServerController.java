@@ -11,9 +11,10 @@ import unicorns.OnlineGame;
 
 public class ServerController extends Controller{
 
-	static int id=0;
+	static int id=1;
 	int clientID;
 	OnlineGame game;
+	ServerController partner;
 	
 	public ServerController(Socket s, ObjectOutputStream out) {
 		super(s, out);
@@ -34,7 +35,7 @@ public class ServerController extends Controller{
 					Server.games.remove(game);
 					Console.s.println("Game removed:\n  Code: "+game.getCode());
 				}
-				game=Server.createGame(clientID, (boolean) r.get("white"),(long)r.get("clocks"));
+				game=Server.createGame(this, (boolean) r.get("white"),(long)r.get("clocks"));
 				Request codeReq=new Request("post","code");
 				codeReq.set("code", game.getCode());
 				queueProcessRequest(codeReq);
@@ -45,17 +46,42 @@ public class ServerController extends Controller{
 			case "code":
 				try {
 					game=Server.getGame((String)r.get("code"));
-					boolean connected=game.connect(clientID);
-					//send connection result to client
+					boolean connected=game.connect(this);
+					Request gameReq=new Request("post","game");
+					if (connected) {
+						Console.s.println(clientID+" joined game "+game.getCode());
+						gameReq.set("success", true);
+						boolean white=game.getPlayerID(true)==clientID;
+						gameReq.set("white", white);
+						gameReq.set("clocks", game.getWhiteTime());
+						if (white) {
+							partner=game.getBlack();
+						} else {
+							partner=game.getWhite();
+						}
+						partner.partner=this;
+						//partner not noticing that opponent joining when they make a game as black for some reason...
+						partner.queueProcessRequest(new Request("post","joined"));
+						
+					} else {
+						gameReq.set("success", false);
+					}
+					queueProcessRequest(gameReq);
 				} catch (Exception e) {
+					Console.s.println("Exception!");
+					e.printStackTrace();
 					//send error to client
+					
 				}
 			break;
 			case "confirm":
-				
+				r.set("type", "post");
+				partner.queueProcessRequest(r);
 			break;
 			case "move":
-				
+				//forward request to partner
+				r.set("type", "post");
+				partner.queueProcessRequest(r);
 			break;
 		}
 		
@@ -67,6 +93,10 @@ public class ServerController extends Controller{
 			Server.games.remove(game);
 			Console.s.println("Game removed:\n  Code: "+game.getCode());
 		}
+	}
+	
+	public int getClientID() {
+		return clientID;
 	}
 	
 }
