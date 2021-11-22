@@ -907,9 +907,9 @@ public class Game extends Screen{
 			state=STATE.draw;
 		} else {
 			if (whiteTurn) {
-				whiteTime=oppTime;
+				whiteTime=oppTime+500;
 			}else {
-				blackTime=oppTime;
+				blackTime=oppTime+500;
 			}
 			state=STATE.move;
 		}
