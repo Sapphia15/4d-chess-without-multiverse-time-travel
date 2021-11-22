@@ -658,6 +658,8 @@ public class Game extends Screen{
 			sounds=!sounds;
 		} else if (e.getKeyCode()==KeyEvent.VK_H) {
 			highlightMoves=!highlightMoves;
+		} else if (e.getKeyCode()==KeyEvent.VK_BACK_SLASH) {
+			Main.cmd.setVisible(true);
 		}
 	}
 	

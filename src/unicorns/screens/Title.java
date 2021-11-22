@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 import graphics.screen.Screen;
+import unicorns.Main;
 import unicorns.Panel;
 
 public class Title extends Screen{
@@ -71,7 +72,9 @@ public class Title extends Screen{
 	}
 	
 	public void keyPressed(KeyEvent e) {
-		
+		if (e.getKeyCode()==KeyEvent.VK_BACK_SLASH) {
+			Main.cmd.setVisible(true);
+		}
 	}
 	
 	public void mousePressed(MouseEvent e) {

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -143,6 +144,12 @@ public class Online extends Screen {
 			create=new Rectangle(midX+100,midY-170,200,100);
 			clocks=new Rectangle(215,5,100,50);
 			color=new Rectangle(325,5,100,100);
+		}
+	}
+	
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode()==KeyEvent.VK_BACK_SLASH) {
+			Main.cmd.setVisible(true);
 		}
 	}
 	

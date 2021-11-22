@@ -1,11 +1,13 @@
 package unicorns;
 
 import java.awt.Frame;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import gameutil.math.geom.Point;
+import gameutil.text.Console;
 import graphics.screen.SPanel;
 import unicorns.net.ClientController;
 import unicorns.screens.Game;
@@ -28,7 +30,7 @@ public class Panel extends SPanel{
 		this.currentScreen=screens.get("title");
 		this.setScreen("title");
 		try {
-			Socket s=new Socket("10.0.0.222",25565);
+			Socket s=new Socket("68.61.11.144",25565);
 			controller=new ClientController(s,new ObjectOutputStream(s.getOutputStream()),this);
 		} catch (IOException e) {
 			Main.err.println("Failed to connect to server!");
@@ -103,6 +105,24 @@ public class Panel extends SPanel{
 	
 	public void exitOnlineGame() {
 		controller.exitGame();
+	}
+	
+	public void connectToAlternateServer(String address) {
+		if (controller!=null) {
+			controller.disconnect();
+		}
+		try {
+			Console.s.println("Connecting to alternate server "+address+"...");
+			Socket s=new Socket(address.substring(0, address.indexOf(':')),Integer.parseInt(address.substring(address.indexOf(':')+1)));
+			controller=new ClientController(s,new ObjectOutputStream(s.getOutputStream()),this);
+			Main.err.println("Connected to "+address+"!");
+		} catch (IOException e) {
+			Main.err.println("Failed to connect to server!");
+			e.printStackTrace();
+		} catch (Exception e) {
+			Main.err.println("Failed to connect to server! Make sure you typed in the address correctly.");
+			e.printStackTrace();
+		}
 	}
 	
 	/**
