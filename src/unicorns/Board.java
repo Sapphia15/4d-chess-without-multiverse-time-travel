@@ -6,6 +6,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import gameutil.math.geom.*;
 import gameutil.text.Console;
+import unicorns.ai.AI;
+import unicorns.ai.RandomAI;
 
 
 public class Board {
@@ -19,6 +21,8 @@ public class Board {
 	Point ghost=null;
 	Piece ghostPawn=null;
 	char lastPieceMoved='x';
+	char lastPieceTaken='x';
+	
 	
 	/**Creates an empty board
 	 * 
@@ -480,6 +484,7 @@ public class Board {
 		Piece x=this.pieceAt(end);
 		selectPiece(p);
 		boolean white=p.white;
+		lastPieceTaken='x';
 		//make the move... need to fix/finish
 		if (x!=null) {
 			if (white==x.isWhite()) {
@@ -501,6 +506,7 @@ public class Board {
 					Piece newPiece=new Piece(p.pos,promotion);
 					pieces.add(newPiece);
 				} 
+				lastPieceTaken=x.getType();
 				return true;
 			} else {
 				deselectPiece();
@@ -575,5 +581,9 @@ public class Board {
 			q='Q';
 		}
 		return makeMove(move,q);
+	}
+	
+	public char lastPieceTaken() {
+		return lastPieceTaken;
 	}
 }

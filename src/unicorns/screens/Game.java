@@ -25,6 +25,9 @@ import unicorns.Main;
 import unicorns.Panel;
 import unicorns.Piece;
 import unicorns.Sounds;
+import unicorns.ai.AI;
+import unicorns.ai.CaptureAI;
+import unicorns.ai.RandomAI;
 
 public class Game extends Screen{
 
@@ -63,6 +66,7 @@ public class Game extends Screen{
 	long whiteTime=60000*20;
 	long blackTime=60000*20;//20 minutes
 	long timeIndex=0;
+	AI theAi=new CaptureAI();
 	//TODO need to add clocks!
 	
 	
@@ -579,7 +583,8 @@ public class Game extends Screen{
 			
 		} else if (state==STATE.move&&ai&&whiteTurn==oppColor) {
 			ArrayList<Point[]> legalMoves=b.getAllLegalMoves(whiteTurn);
-			Point[] move=legalMoves.get(Main.rand.nextInt(legalMoves.size()));
+			
+			Point[] move=theAi.getMove(legalMoves,b.clone());
 			b.makeMove(move);
 			state=STATE.submit;
 			
@@ -843,6 +848,7 @@ public class Game extends Screen{
 		this.clocks=observer.clocks();
 		if (ai) {
 			oppColor=(1==Main.rand.nextInt(2));
+			theAi.setColor(oppColor);
 			wPersp=!oppColor;
 		} else if (online){
 			wPersp=!oppColor;
