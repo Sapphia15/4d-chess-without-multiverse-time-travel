@@ -19,7 +19,7 @@ public class Main {
 	public static final Sounds sounds=new Sounds();
 	
 	public static void main(String[] unicorns) {
-		Console.s.setTitle("4d Chess Without Multiverse Time Travel");
+		Console.s.setTitle("4d Chess Without Multiverse Time Travel Notation");
 		Console.s.println("4d Chess Without Multiverse Time Travel");
 		err.setTitle("Errors and Debug");
 		err.setTheme(Console.theme.shell2);
@@ -39,6 +39,7 @@ public class Main {
 		f.pack();
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
+		f.setTitle("4d Chess Without Multiverse Time Travel");
 		panel.setDoubleBuffered(true);
 		panel.closeOnExit();
 		panel.setTargetFPS(30, 1);

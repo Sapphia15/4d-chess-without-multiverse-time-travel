@@ -15,6 +15,7 @@ import javax.swing.ImageIcon;
 
 import java.awt.Rectangle;
 
+import gameutil.math.geom.BezierCurve;
 import gameutil.math.geom.Point;
 import gameutil.math.geom.Tuple;
 import gameutil.text.Console;
@@ -50,6 +51,7 @@ public class Game extends Screen{
 	boolean simpleBoard=false;
 	boolean sounds=true;
 	boolean highlightMoves=true;
+	int lastButtonPressed=0;
 	
 	boolean oppColor=false;
 	static enum STATE {move,submit,pawnmove,detect,illegal,whiteWins,blackWins,draw,promote,detectPawn,detectMate,analyze};//need to add analyze state still...
@@ -66,6 +68,7 @@ public class Game extends Screen{
 	long whiteTime=60000*20;
 	long blackTime=60000*20;//20 minutes
 	long timeIndex=0;
+	BezierCurve bez=null;
 	AI theAi=new CaptureAI();
 	//TODO need to add clocks!
 	
@@ -438,6 +441,24 @@ public class Game extends Screen{
 				}
 			}
 		}
+		
+		if (bez!=null) {
+			try {
+				BezierCurve colorBez=new BezierCurve(new Point[] {new Point(new double[] {255}),new Point(new double[] {150,0,200}),new Point(new double[] {0,255})});
+				for (int val=0;val<1000;val++) {
+					double t=val/1000d;
+					Point colorPoint=colorBez.getPoint(t);
+					g.setColor(new Color((int)colorPoint.tuple.i(0),(int)colorPoint.tuple.i(1),(int)colorPoint.tuple.i(2),5));
+					Point curvePoint=bez.getPoint(t);
+					g.fillOval((int)Math.round(curvePoint.tuple.i(0))-10, (int)Math.round(curvePoint.tuple.i(1))-10,5, 20);
+					g.setColor(new Color((int)colorPoint.tuple.i(0),(int)colorPoint.tuple.i(1),(int)colorPoint.tuple.i(2)));
+					g.fillOval((int)Math.round(curvePoint.tuple.i(0))-7, (int)Math.round(curvePoint.tuple.i(1))-7,2, 15);
+				}
+			} catch (Exception e) {
+				
+			}
+		}
+		
 		if (showIngameMenu) {
 			g.setColor(Color.DARK_GRAY);
 			g.fillRoundRect(menu.x, menu.y, menu.width, menu.height, 20, 20);
@@ -671,94 +692,108 @@ public class Game extends Screen{
 	
 	public void mousePressed(MouseEvent e) {
 		//Console.s.println("mouse pressed");
-		if (showIngameMenu) {
-			if (exit.contains(e.getPoint())) {
-				if (online) {
-					observer.exitOnlineGame();
-				}
-				observer.setScreen("title");
-			}
-		} else if (board.contains(e.getPoint())){
-			Point boardPoint=screenToBoard(e.getX(),e.getY());
-			if (state==STATE.move && !((ai||online)&&whiteTurn==oppColor)) {
-				//Console.s.println("clicked board");
-				Piece p=b.pieceAt(boardPoint);
-				if (p!=null) {
-					if (whiteTurn==p.isWhite()) {
-						b.selectPiece(p);
-						capture="";
-					} else if (b.spaceMoveable(boardPoint)){
-						//capture
-						capture="x";
-						b.move(boardPoint);
-						Piece selectedPiece=b.getSelectedPiece();
-						b.getPieces().remove(p);
-						
-						b.deselectPiece();
-						if (String.valueOf(selectedPiece.getType()).toUpperCase().equals("P")&&((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&whiteTurn)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!whiteTurn))) {
-							promoteSquare=boardPoint;
-							state=STATE.promote;
-							
-						} else {
-							state=STATE.detect;
-						}
-						
+		if (e.getButton()==1) {
+			if (showIngameMenu) {
+				if (exit.contains(e.getPoint())) {
+					if (online) {
+						observer.exitOnlineGame();
 					}
-				} else if (b.spaceMoveable(boardPoint)) {
-					
-					Piece selected=b.getSelectedPiece();
-					if (String.valueOf(selected.getType()).toUpperCase().equals("P")){
-						if(b.getGhost()!=null&&boardPoint.equals(b.getGhost())&&boardPoint.distance(selected.getPos())>1) {
+					observer.setScreen("title");
+				}
+			} else if (board.contains(e.getPoint())){
+				Point boardPoint=screenToBoard(e.getX(),e.getY());
+				if (state==STATE.move && !((ai||online)&&whiteTurn==oppColor)) {
+					//Console.s.println("clicked board");
+					Piece p=b.pieceAt(boardPoint);
+					if (p!=null) {
+						if (whiteTurn==p.isWhite()) {
+							b.selectPiece(p);
+							capture="";
+						} else if (b.spaceMoveable(boardPoint)){
+							//capture
 							capture="x";
-							Piece ghostPawn=b.getGhostPiece();
 							b.move(boardPoint);
-							b.getPieces().remove(ghostPawn);
-							
+							Piece selectedPiece=b.getSelectedPiece();
+							b.getPieces().remove(p);
 							
 							b.deselectPiece();
-							state=STATE.detect;
-						} else if (selected.isFirstMove()) {
-							state=STATE.pawnmove;
-							b.move(boardPoint);
-							b.selectPiece(selected);
-						} else {
-							//TODO this looks like it should work but promotion just didn't happen once during a test run...
-							b.move(boardPoint);
-							b.deselectPiece();
-							if ((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&whiteTurn)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!whiteTurn)) {
+							if (String.valueOf(selectedPiece.getType()).toUpperCase().equals("P")&&((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&whiteTurn)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!whiteTurn))) {
 								promoteSquare=boardPoint;
 								state=STATE.promote;
 								
 							} else {
 								state=STATE.detect;
 							}
+							
 						}
+					} else if (b.spaceMoveable(boardPoint)) {
+						
+						Piece selected=b.getSelectedPiece();
+						if (String.valueOf(selected.getType()).toUpperCase().equals("P")){
+							if(b.getGhost()!=null&&boardPoint.equals(b.getGhost())&&boardPoint.distance(selected.getPos())>1) {
+								capture="x";
+								Piece ghostPawn=b.getGhostPiece();
+								b.move(boardPoint);
+								b.getPieces().remove(ghostPawn);
+								
+								
+								b.deselectPiece();
+								state=STATE.detect;
+							} else if (selected.isFirstMove()) {
+								state=STATE.pawnmove;
+								b.move(boardPoint);
+								b.selectPiece(selected);
+							} else {
+								//TODO this looks like it should work but promotion just didn't happen once during a test run...
+								b.move(boardPoint);
+								b.deselectPiece();
+								if ((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&whiteTurn)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!whiteTurn)) {
+									promoteSquare=boardPoint;
+									state=STATE.promote;
+									
+								} else {
+									state=STATE.detect;
+								}
+							}
+						} else {
+							b.move(boardPoint);
+							b.deselectPiece();
+							state=STATE.detect;
+							
+						}
+						
+						
+						
 					} else {
-						b.move(boardPoint);
+						b.deselectPiece();
+					}
+				} else if (state==STATE.pawnmove) {
+					if (b.spaceMoveable(boardPoint)&&b.pieceAt(boardPoint)==null) {
+						b.secondPawnMove(boardPoint);
 						b.deselectPiece();
 						state=STATE.detect;
-						
 					}
-					
-					
-					
+				}
+			} else if (state==STATE.promote) {
+				if (whiteTurn) {
+					for (Rectangle r:promotablesW.keySet()) {
+						if (r.contains(e.getPoint())) {
+							if (r.contains(e.getPoint())) {
+								b.getPieces().remove(b.pieceAt(promoteSquare));
+								Piece newPiece=promotablesW.get(r).clone();
+								promotePiece=String.valueOf(newPiece.getType()).toUpperCase();
+								newPiece.setPos(promoteSquare);
+								b.getPieces().add(newPiece);
+								promoteSquare=null;
+								state=STATE.detect;
+							}
+						}
+					}
 				} else {
-					b.deselectPiece();
-				}
-			} else if (state==STATE.pawnmove) {
-				if (b.spaceMoveable(boardPoint)&&b.pieceAt(boardPoint)==null) {
-					b.secondPawnMove(boardPoint);
-					b.deselectPiece();
-					state=STATE.detect;
-				}
-			}
-		} else if (state==STATE.promote) {
-			if (whiteTurn) {
-				for (Rectangle r:promotablesW.keySet()) {
-					if (r.contains(e.getPoint())) {
+					for (Rectangle r:promotablesB.keySet()) {
 						if (r.contains(e.getPoint())) {
 							b.getPieces().remove(b.pieceAt(promoteSquare));
-							Piece newPiece=promotablesW.get(r).clone();
+							Piece newPiece=promotablesB.get(r).clone();
 							promotePiece=String.valueOf(newPiece.getType()).toUpperCase();
 							newPiece.setPos(promoteSquare);
 							b.getPieces().add(newPiece);
@@ -767,20 +802,18 @@ public class Game extends Screen{
 						}
 					}
 				}
-			} else {
-				for (Rectangle r:promotablesB.keySet()) {
-					if (r.contains(e.getPoint())) {
-						b.getPieces().remove(b.pieceAt(promoteSquare));
-						Piece newPiece=promotablesB.get(r).clone();
-						promotePiece=String.valueOf(newPiece.getType()).toUpperCase();
-						newPiece.setPos(promoteSquare);
-						b.getPieces().add(newPiece);
-						promoteSquare=null;
-						state=STATE.detect;
-					}
-				}
 			}
+			lastButtonPressed=e.getButton();
+		} else if (e.getButton()==3) {
+			java.awt.Point mPoint=e.getPoint();
+			if (board.contains(mPoint)) {
+				bez=new BezierCurve(new Point[]{new Point(new double[] {mPoint.x,mPoint.y}),new Point(new double[] {mPoint.x,mPoint.y}),new Point(new double[] {mPoint.x,mPoint.y})});
+			} else {
+				bez=null;
+			}
+			lastButtonPressed=e.getButton();
 		}
+		
 	}
 	
 	public void mouseMoved(MouseEvent e) {
@@ -971,6 +1004,24 @@ public class Game extends Screen{
 			state=STATE.blackWins;
 		} else {
 			state=STATE.whiteWins;
+		}
+	}
+	
+	public void mouseDragged(MouseEvent e) {
+		if (lastButtonPressed==3) {
+			java.awt.Point mPoint=e.getPoint();
+			if (screenToBoard(mPoint.x, mPoint.y).tuple.i(0)>-1&&bez!=null) {
+				CopyOnWriteArrayList<Point> points=bez.getPoints();
+				Point intermed=points.get(0).lerp(points.get(2), .5);
+				double dx=points.get(2).tuple.i(0)-points.get(0).tuple.i(0);
+				double dy=points.get(2).tuple.i(1)-points.get(0).tuple.i(1);
+				double y=intermed.tuple.i(1)-Math.abs(dy-Math.abs(dx));
+				if (y<board.y) {
+					y=board.y;
+				}
+				bez.setPoint(new Point(new double[] {mPoint.x,mPoint.y}),2);
+				bez.setPoint(new Point(new double[] {intermed.tuple.i(0),y}),1);
+			}
 		}
 	}
 }
