@@ -35,7 +35,7 @@ import unicorns.ai.AI;
 import unicorns.ai.CaptureAI;
 import unicorns.ai.RandomAI;
 
-public class Game extends Screen{
+public class Game7D extends Screen{
 
 	Panel observer;
 	ConcurrentHashMap<Rectangle,Point> rects=new ConcurrentHashMap<>();
@@ -43,6 +43,9 @@ public class Game extends Screen{
 	Rectangle board=new Rectangle(0,0,1,1);
 	Rectangle menu=new Rectangle(0,0,1,1);
 	Rectangle exit=new Rectangle(0,0,1,1);
+	Rectangle screen=new Rectangle(0,0,1,1);
+	ArrayList<Board> whiteBoards;
+	ArrayList<Board> blackBoards;
 	Board b=new Board();
 	boolean wPersp=true;
 	int oldWidth=0;
@@ -83,7 +86,7 @@ public class Game extends Screen{
 	Hashtable<Rectangle,Piece> promotablesW=new Hashtable<>();
 	Hashtable<Rectangle,Piece> promotablesB=new Hashtable<>();
 	
-	public Game(Panel observer) {
+	public Game7D(Panel observer) {
 		this.observer=observer;
 		if (ai) {
 			wPersp=!oppColor;

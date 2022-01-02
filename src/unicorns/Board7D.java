@@ -10,14 +10,14 @@ import unicorns.ai.AI;
 import unicorns.ai.RandomAI;
 
 
-public class Board {
+public class Board7D {
 	public static final Hypercube tess=new Hypercube(new Point(new Tuple(new  double[] {0,0,0,0})), 3);
 	CopyOnWriteArrayList<Piece> pieces=new CopyOnWriteArrayList<>();
 	Point[] legalMoves=new Point[0];
 	Point lastMoveEnd=null;
 	Point lastMoveStart=null;
 	Piece selected=null;
-	Board lastState=null;
+	Board7D lastState=null;
 	Point ghost=null;
 	Piece ghostPawn=null;
 	char lastPieceMoved='x';
@@ -27,13 +27,13 @@ public class Board {
 	/**Creates an empty board
 	 * 
 	 */
-	public Board() {
+	public Board7D() {
 		
 	}
 	
 	public void setUp() {
 		//reset to an empty board with default values
-		setState(new Board());
+		setState(new Board7D());
 		
 		//setUpPieces
 		for (int i=0; i<4; i++) {
@@ -119,7 +119,7 @@ public class Board {
 	}
 	
 	public void experimentSetUp(){
-		setState(new Board());
+		setState(new Board7D());
 		pieces.clear();
 		pieces.add(new Piece(new Point(new Tuple(new double[] {3,3,3,3})),'K'));
 		pieces.add(new Piece(new Point(new Tuple(new double[] {0,2,1,3})),'P'));
@@ -217,7 +217,7 @@ public class Board {
 	
 	public void move(Point p) {
 		
-		Board oldState=lastState.clone();
+		Board7D oldState=lastState.clone();
 		lastState=this.clone();
 		lastState.lastState=oldState.clone();//this will allow for any number of undos during analysis
 		lastMoveStart=selected.getPos();
@@ -242,7 +242,7 @@ public class Board {
 		}
 	}
 	
-	public void setState(Board b) {
+	public void setState(Board7D b) {
 		this.legalMoves=b.legalMoves.clone();
 		if (b.lastMoveEnd!=null) {
 			this.lastMoveEnd=b.lastMoveEnd.clone();
@@ -270,8 +270,8 @@ public class Board {
 		}
 	}
 	
-	public Board clone() {
-		Board cloneBoard=new Board();
+	public Board7D clone() {
+		Board7D cloneBoard=new Board7D();
 		if (this.lastMoveEnd!=null) {
 			cloneBoard.lastMoveEnd=this.lastMoveEnd.clone();
 		}
@@ -370,7 +370,7 @@ public class Board {
 	
 	public boolean playerHasLegalMove(boolean white) {
 		
-		Board testBoard=this.clone();
+		Board7D testBoard=this.clone();
 		//testBoard.lastState=this.clone();
 		for (Piece p:this.getPieces()) {
 			if (p.white==white) {
@@ -391,7 +391,7 @@ public class Board {
 					if (moveMade) {
 						testBoard.undo();
 					} else  {
-						Main.err.println("Tried to make illegal move on test board: "+Board.pointToNotation(start)+" "+Board.pointToNotation(move));
+						Main.err.println("Tried to make illegal move on test board: "+Board7D.pointToNotation(start)+" "+Board7D.pointToNotation(move));
 					}
 					if (pawn&&move.distance(start)==1&&target==null&&fm) {
 						for (Point secondMove : testPiece.getPotentialMoves(testPiece.getType(),testBoard)) {
@@ -408,7 +408,7 @@ public class Board {
 								if (moveMade) {
 									testBoard.undo();
 								} else  {
-									Main.err.println("Tried to make illegal move on test board: "+Board.pointToNotation(start)+" ("+Board.pointToNotation(move)+") "+Board.pointToNotation(secondMove));
+									Main.err.println("Tried to make illegal move on test board: "+Board7D.pointToNotation(start)+" ("+Board7D.pointToNotation(move)+") "+Board7D.pointToNotation(secondMove));
 								}
 							}
 							
@@ -423,7 +423,7 @@ public class Board {
 	
 	public ArrayList<Point[]> getAllLegalMoves(boolean white){
 		ArrayList<Point[]> legalMoves=new ArrayList<>();
-		Board testBoard=this.clone();
+		Board7D testBoard=this.clone();
 		//testBoard.lastState=this.clone();
 		for (Piece p:this.getPieces()) {
 			if (p.white==white) {
@@ -444,7 +444,7 @@ public class Board {
 					if (moveMade) {
 						testBoard.undo();
 					} else  {
-						Main.err.println("Tried to make illegal move on test board: "+Board.pointToNotation(start)+" "+Board.pointToNotation(move));
+						Main.err.println("Tried to make illegal move on test board: "+Board7D.pointToNotation(start)+" "+Board7D.pointToNotation(move));
 					}
 					if (pawn&&move.distance(start)==1&&target==null&&fm) {
 						for (Point secondMove : testPiece.getPotentialMoves(testPiece.getType(),testBoard)) {
@@ -461,7 +461,7 @@ public class Board {
 								if (moveMade) {
 									testBoard.undo();
 								} else  {
-									Main.err.println("Tried to make illegal move on test board: "+Board.pointToNotation(start)+" ("+Board.pointToNotation(move)+") "+Board.pointToNotation(secondMove));
+									Main.err.println("Tried to make illegal move on test board: "+Board7D.pointToNotation(start)+" ("+Board7D.pointToNotation(move)+") "+Board7D.pointToNotation(secondMove));
 								}
 							}
 							
@@ -495,7 +495,7 @@ public class Board {
 	}
 	
 	public boolean moveIsLegal(Point start, Point end) {
-		Board testBoard=this.clone();
+		Board7D testBoard=this.clone();
 		testBoard.makeMove(start, end);
 		return testBoard.playerInCheck(testBoard.pieceAt(end).white);
 	}

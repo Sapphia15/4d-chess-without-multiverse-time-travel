@@ -420,4 +420,9 @@ public class Piece {
 	public void setPos(Point pos) {
 		this.pos=pos;
 	}
+
+	public Point[] getPotentialMoves(char type2, Board7D board7d) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
