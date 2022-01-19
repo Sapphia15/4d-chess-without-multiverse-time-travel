@@ -27,6 +27,7 @@ import gameutil.text.Console;
 import graphics.screen.Screen;
 import unicorns.Assets;
 import unicorns.Board;
+import unicorns.Board7D;
 import unicorns.Main;
 import unicorns.Panel;
 import unicorns.Piece;
@@ -35,8 +36,8 @@ import unicorns.ai.AI;
 import unicorns.ai.CaptureAI;
 import unicorns.ai.RandomAI;
 
-public class Game7D extends Screen{
-
+public class Game7D/* extends Screen*/{
+/*
 	Panel observer;
 	ConcurrentHashMap<Rectangle,Point> rects=new ConcurrentHashMap<>();
 	CopyOnWriteArrayList<BezierCurve> bezties=new CopyOnWriteArrayList<>();
@@ -44,9 +45,7 @@ public class Game7D extends Screen{
 	Rectangle menu=new Rectangle(0,0,1,1);
 	Rectangle exit=new Rectangle(0,0,1,1);
 	Rectangle screen=new Rectangle(0,0,1,1);
-	ArrayList<Board> whiteBoards;
-	ArrayList<Board> blackBoards;
-	Board b=new Board();
+	Board7D b=new Board7D();
 	boolean wPersp=true;
 	int oldWidth=0;
 	int oldHeight=0;
@@ -719,7 +718,7 @@ public class Game7D extends Screen{
 				state=STATE.move;
 				//Console.s.println(whiteTurn);
 				wPersp=(!wPersp&&!ai)||(ai&&!aiColor);
-			}*/
+			}*//*
 		} else if (state==STATE.promote&&ai&&oppColor==whiteTurn) {
 			Piece newPiece=null;
 			//remove the pawn
@@ -1127,5 +1126,5 @@ public class Game7D extends Screen{
 			}
 		}
 		
-	}
+	}*/
 }
