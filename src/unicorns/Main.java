@@ -19,8 +19,8 @@ public class Main {
 	public static final Sounds sounds=new Sounds();
 	
 	public static void main(String[] unicorns) {
-		Console.s.setTitle("4d Chess Without Multiverse Time Travel Notation");
-		Console.s.println("4d Chess Without Multiverse Time Travel");
+		Console.s.setTitle("4d Chess Notation");
+		Console.s.println("4d Chess");
 		err.setTitle("Errors and Debug");
 		err.setTheme(Console.theme.shell2);
 		cmd.setTitle("Command Line 4D");
