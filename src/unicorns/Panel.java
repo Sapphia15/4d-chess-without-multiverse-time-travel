@@ -19,6 +19,7 @@ public class Panel extends SPanel{
 	boolean ai;
 	boolean clocks=true;
 	boolean online;
+	boolean music=true;
 	ClientController controller;
 	
 	public Panel(Frame observer) {
@@ -29,6 +30,7 @@ public class Panel extends SPanel{
 		this.screens.put("online", new Online(this));
 		this.currentScreen=screens.get("title");
 		this.setScreen("title");
+		
 		Main.err.setVisible(true);
 		//Main.err.println("Attempting to connect to main server.");
 		//will re-add this once I have a port forwarded server
@@ -127,6 +129,15 @@ public class Panel extends SPanel{
 		} catch (Exception e) {
 			Main.err.println("Failed to connect to server! Make sure you typed in the address correctly.");
 			e.printStackTrace();
+		}
+	}
+	
+	public void toggleMusic() {
+		music=!music;
+		if (music) {
+			Main.sounds.resumeSound("For_Dee.wav");
+		} else {
+			Main.sounds.pauseSound("For_Dee.wav");
 		}
 	}
 	

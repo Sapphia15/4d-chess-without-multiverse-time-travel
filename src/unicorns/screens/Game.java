@@ -776,6 +776,8 @@ public class Game extends Screen{
 			Main.cmd.setVisible(true);
 		} else if (e.getKeyCode()==KeyEvent.VK_C) {
 			drawChecks=!drawChecks;
+		} else if (e.getKeyCode()==KeyEvent.VK_M) {
+			observer.toggleMusic();
 		}
 	}
 	

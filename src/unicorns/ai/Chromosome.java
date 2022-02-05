@@ -19,7 +19,7 @@ public class Chromosome {
 		for (int i=0;i<layers;i++) {
 			Tuple t=new Tuple(256);
 			for (int j=0;j<256;j++) {
-				t.set(j, Main.rand.nextDouble(2)-1);
+				t.set(j, Main.rand.nextDouble()*2-1);
 			}
 		}
 	}

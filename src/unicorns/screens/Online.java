@@ -150,6 +150,8 @@ public class Online extends Screen {
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode()==KeyEvent.VK_BACK_SLASH) {
 			Main.cmd.setVisible(true);
+		}  else if (e.getKeyCode()==KeyEvent.VK_M) {
+			observer.toggleMusic();
 		}
 	}
 	

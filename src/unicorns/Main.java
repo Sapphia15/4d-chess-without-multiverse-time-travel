@@ -37,6 +37,7 @@ public class Main {
 		f.add(panel);
 		
 		f.pack();
+		Main.sounds.playSoundOnLoop("For_Dee.wav", 0);
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
 		f.setTitle("4d Chess Without Multiverse Time Travel");

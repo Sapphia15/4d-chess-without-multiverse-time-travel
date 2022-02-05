@@ -75,7 +75,8 @@ public class Sounds {
 			audioInputStream = AudioSystem.getAudioInputStream(new File(FilePath).getAbsoluteFile());
 			clip = AudioSystem.getClip();
 			clip.open(audioInputStream);
-			clip.loop(Clip.LOOP_CONTINUOUSLY);
+			clip.loop(-1);
+			
 			clips.put(Name, clip);
 		} catch (UnsupportedAudioFileException e) {
 			e.printStackTrace();
@@ -94,6 +95,7 @@ public class Sounds {
     public void resumeSound(String Name){
     	Clip clip=clips.get(Name);
     	clip.start();
+    	clip.loop(-1);
     }
     public void close(){
     	for (String k:clips.keySet()){
