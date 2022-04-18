@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 import graphics.screen.Screen;
+import unicorns.Assets;
 import unicorns.Main;
 import unicorns.Panel;
 
@@ -18,6 +19,7 @@ public class Title extends Screen{
 	Rectangle exit;
 	Rectangle clocks;
 	Rectangle online;
+	Rectangle hyperVox;
 	int oldWidth=0;
 	int oldHeight=0;
 	
@@ -30,6 +32,7 @@ public class Title extends Screen{
 		exit=new Rectangle(midX-100,midY+100,200,100);
 		clocks=new Rectangle(10,10,100,50);
 		online=new Rectangle(midX-100,midY-350,200,100);
+		hyperVox=new Rectangle(10,midY*2-64,64,64);
 	}
 	
 	@Override
@@ -54,6 +57,7 @@ public class Title extends Screen{
 		g.drawString("Online",(int) online.getCenterX()-50,(int)online.getCenterY());
 		g.setColor(Color.black);
 		g.drawString("Clocks",(int) clocks.getCenterX()-(int)g.getFontMetrics().getStringBounds("Clocks", g).getWidth()/2,(int)clocks.getCenterY()+(int)g.getFontMetrics().getStringBounds("Clocks", g).getHeight()/4);
+		g.drawImage(Assets.UNICORN_B, hyperVox.x, hyperVox.y, hyperVox.width, hyperVox.height, observer);
 	}
 
 	@Override
@@ -63,10 +67,12 @@ public class Title extends Screen{
 			oldHeight=observer.getHeight();
 			int midX=oldWidth/2;
 			int midY=oldHeight/2;
+			
 			human=new Rectangle(midX-100,midY-150,200,100);
 			ai=new Rectangle(midX-100,midY,200,100);
 			exit=new Rectangle(midX-100,midY+150,200,100);
 			online=new Rectangle(midX-100,midY-300,200,100);
+			hyperVox=new Rectangle(10,midY*2-64,64,64);
 		}
 		
 	}
@@ -92,10 +98,23 @@ public class Title extends Screen{
 			observer.setClocks(!observer.clocks());
 		} else if (online.contains(e.getPoint())) {
 			observer.setScreen("online");
+		} else if (hyperVox.contains(e.getPoint())) {
+			observer.setScreen("hyperVox");
 		}
 	}
 	
 	public void mouseMoved(MouseEvent e) {
+		
+	}
+	
+	@Override
+	public void setInit() {
+		
+	}
+
+	@Override
+	protected void keyDown(int key) {
+		// TODO Auto-generated method stub
 		
 	}
 

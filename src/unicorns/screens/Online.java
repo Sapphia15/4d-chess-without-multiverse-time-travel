@@ -210,5 +210,11 @@ public class Online extends Screen {
 		this.generated=g;
 	}
 
+	@Override
+	protected void keyDown(int key) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 }

@@ -2,6 +2,8 @@ package unicorns;
 
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 import gameutil.math.geom.Point;
@@ -10,6 +12,7 @@ import gameutil.math.geom.Vector;
 import gameutil.text.Argument;
 import gameutil.text.Console;
 import gameutil.text.Iru.IruConsole;
+import unicorns.hypervox.CharMap;
 
 public class Main {
 	
@@ -65,6 +68,8 @@ public class Main {
 						err.setVisible(false);
 					} else if (args.get(1).equals("out")) {
 						Console.s.setVisible(false);
+					} else if (args.get(1).equals("")){
+						cmd.setVisible(false);
 					}
 				break;
 				case "show":
@@ -86,6 +91,16 @@ public class Main {
 						cmd.println("press Esc to view the in game menu while in a game");
 						cmd.println("press \\ to show this console window");
 						cmd.println("piece movement and other help explanations coming soon(ish) (maybe)");
+					} else if (args.get(1).equals("hypervox")) {
+						cmd.println("press W to go forward");
+						cmd.println("press A to go left");
+						cmd.println("press S to go back");
+						cmd.println("press D to go right");
+						cmd.println("press SPACE to go up");
+						cmd.println("press Q to go kata");
+						cmd.println("press SHIFT to go down");
+						cmd.println("press E to go ana");
+						cmd.println("press P to place a parabox in the place where you are when you move out of that spot");
 					} else {
 						cmd.println("help - show this");
 						cmd.println("help ingame - show ingame help");
@@ -93,6 +108,33 @@ public class Main {
 						cmd.println("hide <cmd/err/out> - hide the specified console window");
 						cmd.println("show <err/out> - show the specified console window (to show this window press the \\ key while in game window)");
 						cmd.println("exit - forcefully exit the program");
+					}
+				break;
+				case "save":
+					if (args.get(1).equals("")) {
+						try {
+							panel.getHyperVox().getWorld().save();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					} else {
+						try {
+							panel.getHyperVox().getWorld().saveAs(args.get(1));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				break;
+				case "load":
+					panel.getHyperVox().loadWorld(args.get(1));
+				break;
+				case "ls":
+					for (File file:new File("hyperVox/worlds/").listFiles()) {
+						if (file.isFile()&&file.getName().endsWith(".wrld")) {
+							cmd.println(file.getName().substring(0, file.getName().lastIndexOf(".wrld")));
+						}
 					}
 				break;
 			}

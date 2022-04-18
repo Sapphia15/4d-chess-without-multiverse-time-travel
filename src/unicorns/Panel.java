@@ -11,6 +11,7 @@ import gameutil.text.Console;
 import graphics.screen.SPanel;
 import unicorns.net.ClientController;
 import unicorns.screens.Game;
+import unicorns.screens.HyperVox;
 import unicorns.screens.Online;
 import unicorns.screens.Title;
 
@@ -28,6 +29,7 @@ public class Panel extends SPanel{
 		this.screens.put("game", new Game(this));
 		this.screens.put("title", new Title(this));
 		this.screens.put("online", new Online(this));
+		this.screens.put("hyperVox", new HyperVox(this));
 		this.currentScreen=screens.get("title");
 		this.setScreen("title");
 		
@@ -139,6 +141,10 @@ public class Panel extends SPanel{
 		} else {
 			Main.sounds.pauseSound("For_Dee.wav");
 		}
+	}
+	
+	public HyperVox getHyperVox() {
+		return (HyperVox) screens.get("hyperVox");
 	}
 	
 	/**

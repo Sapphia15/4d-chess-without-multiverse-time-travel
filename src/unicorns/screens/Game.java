@@ -1127,4 +1127,10 @@ public class Game extends Screen{
 		}
 		
 	}
+
+	@Override
+	protected void keyDown(int key) {
+		// TODO Auto-generated method stub
+		
+	}
 }

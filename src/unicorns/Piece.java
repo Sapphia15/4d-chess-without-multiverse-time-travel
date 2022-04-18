@@ -262,7 +262,7 @@ public class Piece {
 				}
 			break;
 			case "N":
-				//TODO knight moves
+				//knight moves
 				for (int n=0;n<6;n++) {
 					for (int s=0;s<2;s++) {
 						for (int s2=0;s2<2;s2++) {
@@ -297,7 +297,7 @@ public class Piece {
 				}
 			break;
 			case "K":
-				//TODO king moves
+				//king moves
 				for (Point move : getPotentialMoves('D',bo)) {
 					if (new Vector(move).$S$(vp).magnitude()<=2) {
 						moves.add(move);
