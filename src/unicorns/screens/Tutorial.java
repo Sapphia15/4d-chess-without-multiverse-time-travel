@@ -1,12 +1,16 @@
 package unicorns.screens;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
 import graphics.screen.Screen;
 import unicorns.Assets;
@@ -20,14 +24,24 @@ public class Tutorial extends Screen{
 	int oldHeight=0;
 	int midX=0;
 	int midY=0;
+	
+	final int sWidth=1360;
+	final int sHeight=768;
+	final int smidX=sWidth/2;
+	final int smidY=sHeight/2;
+	final int maxTranslate=612;
+	final double ratio=((double)sWidth)/sHeight;
+	int drawSceneWidth=sWidth;
+	int drawSceneX=0;
 	Textbox t=new Textbox("Dee");
 	long time=System.currentTimeMillis();
 	long dt=0;
-	
+	BufferedImage scene;
 	int x;
 	int y;
 	int z;
 	int w;
+	Graphics2D g;
 	
 	int bound=15;
 	
@@ -51,7 +65,7 @@ public class Tutorial extends Screen{
 		"I mean... Now it's time for four dimensions!",
 		"Above is four dimensional board. The x and z dimensions are squishified horizontally and the y and w dimensions are are squishified vertically. The w dimension corresponds to the directions ana and kata (also known by some as wint and zant or on and again).",
 		"Go ahead and play around a little bit on this four dimensional board and pay attention to how the position numbers and view change as you move. Use the A and D keys to move left and right, the Q and E keys to move forward and backward, the W and S keys to move up and down, and the Space and Shift keys to move ana and kata.",
-		"Congratulations! You finished the tutorial! Once you're ready, left click the dialogue box to return to the menu.",
+		"Congratulations! You finished the tutorial! A more in depth tutorial that explains piece movement and general 4D chess rules is coming soon! Once you're ready, left click the dialogue box to return to the menu.",
 	};
 	
 	int step=0;
@@ -61,13 +75,32 @@ public class Tutorial extends Screen{
 		int midX=observer.getWidth()/2;
 		int midY=observer.getHeight()/2;
 		t.setText(dialogue[step]);
-		
+		initScene();
+		t.setPos(smidX-300,sHeight-205);
+	}
+	
+	public void initScene(){
+		scene=new BufferedImage(sWidth,sHeight, BufferedImage.TYPE_INT_ARGB);
+		g=scene.createGraphics();
+		//g.setBackground(new Color(255,255,255,0));
 	}
 	
 	@Override
 	public void paint(Graphics g) {
 		g.setColor(new Color(170,70,180));
 		g.fillRect(0, 0, oldWidth, oldHeight);
+		//try {
+		scene.flush();
+		initScene();
+		paintScene();
+		//} catch (NullPointerException e) {
+		//	initScene();
+		//}
+		int width=(int)(oldHeight*ratio);
+		g.drawImage(scene,(oldWidth-width)/2, 0,width,oldHeight, null);
+	}
+	
+	public void paintScene() {
 		g.setColor(Color.black);
 		int size;
 		int length;
@@ -82,7 +115,7 @@ public class Tutorial extends Screen{
 					}
 					size=(int) (size+s);
 				}
-				g.drawImage(Assets.UNICORN_B, midX-size/2, midY-size/2-20,size,size, null);
+				g.drawImage(Assets.UNICORN_B, smidX-size/2, midY-size/2-20,size,size, null);
 			break;
 			case 1,2:
 				short s=(short)((dt/100)%20);
@@ -91,41 +124,66 @@ public class Tutorial extends Screen{
 				}
 				
 				length=(int)Math.min(dt/128, 16);
-				int spaceSize=(int)Math.min(dt/8, 512);
+				int translate=(int)Math.min(dt/8, maxTranslate);
 				
 				
 				size=(int) (128+s);
 				
-				int px=(int) Math.max(midX-(dt/10), 148);
-				g.drawImage(Assets.UNICORN_B, px-size/2, midY-size/2-20,size,size, null);
-				int drawSize=Math.min(spaceSize,32);
+				int px=(int) Math.max(smidX-(dt/10), 148);
+				g.drawImage(Assets.UNICORN_B, px-size/2, smidY-size/2-20,size,size, null);
+				int drawSize=Math.min(translate,72);
 				
 				x=(int) (Math.floor(dt/1000)%30);
 				if (x>15) {
 					x=30-x;
 				}
+				g.drawImage(Assets.BOARD_1D, smidX+200-translate, smidY, (drawSize-4)*16+4, drawSize,null);
 				
+				int drawX=smidX+200-translate+x*(drawSize-4)+4;
+				int drawY=smidY+4;
+				g.fillOval(drawX, drawY, drawSize-9, drawSize-9);
+				g.fillRoundRect(drawX+7,drawY-32,47,25,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x, drawX+14,drawY-14);
+				g.setColor(Color.black);
+				/*
 				for (int i=0;i<length;i++) {
-					int thisSize=(int) Math.min(spaceSize-i*32,32);
-					g.drawRect(midX+100-spaceSize/2+i*drawSize, midY-thisSize/2, thisSize, thisSize);
+					int thisSize=(int) Math.min(translate-i*32,32);
+					g.drawRect(midX+100-translate/2+i*drawSize, midY-thisSize/2, thisSize, thisSize);
 					if (i==x) {
-						g.fillOval(midX+100-spaceSize/2+i*drawSize, midY-thisSize/2, thisSize, thisSize);
-						g.fillRoundRect(midX+100-spaceSize/2+i*drawSize-7,midY-thisSize/2-10-17,47,25,20, 20);
+						g.fillOval(midX+100-translate/2+i*drawSize, midY-thisSize/2, thisSize, thisSize);
+						g.fillRoundRect(midX+100-translate/2+i*drawSize-7,midY-thisSize/2-10-17,47,25,20, 20);
 						g.setColor(Color.white);
-						g.drawString("x: "+x, midX+100-spaceSize/2+i*drawSize,midY-thisSize/2-10);
+						g.drawString("x: "+x, midX+100-translate/2+i*drawSize,midY-thisSize/2-10);
 						g.setColor(Color.black);
 						
 					}
 					
-				}
+				}*/
 				
 			break;
 			case 3:
 				size=128-(int)Math.min(dt/5, 128);
-				int littleSize=(-size+128)/4;
+				int littleSize=(-size+128)/2;
 				if (size>0) {
 					g.drawImage(Assets.UNICORN_B, 148-size/2, midY-size/2-20,size,size, null);
 				}
+				g.drawImage(Assets.BOARD_1D, smidX+200-maxTranslate, smidY, (72-4)*16+4, 72,null);
+				
+				drawX=smidX+200-maxTranslate+x*(72-4)+6;
+				drawY=smidY+4;
+				
+				if (littleSize<64) {
+					g.fillOval(drawX+littleSize/2, drawY+littleSize/2, 64-littleSize, 64-littleSize);
+				}
+				if (littleSize>0) {
+					g.drawImage(Assets.UNICORN_B, drawX+64-littleSize, drawY+64-littleSize,littleSize,littleSize, null);
+				}
+				g.fillRoundRect(drawX+7,drawY-32,47,25,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x, drawX+14,drawY-14);
+				g.setColor(Color.black);
+				/*
 				for (int i=0;i<16;i++) {
 					g.drawRect(midX+-156+i*32, midY-16, 32, 32);
 					if (i==x) {
@@ -141,7 +199,7 @@ public class Tutorial extends Screen{
 						g.setColor(Color.black);
 					}
 					
-				}
+				}*/
 				
 				
 				
@@ -149,9 +207,9 @@ public class Tutorial extends Screen{
 			case 4,5,6:
 				
 				length=(int)Math.min(dt/128, 8);
-				spaceSize=(int)Math.min(dt/8, 256);
+				translate=(int)Math.min(dt/8, maxTranslate);
 				
-				drawSize=Math.min(spaceSize,32);
+				drawSize=Math.min(translate,32);
 				
 				x=(int) (Math.floor(dt/1000)%16);
 				if (x>7) {
@@ -163,69 +221,57 @@ public class Tutorial extends Screen{
 					y=14-y;
 				}
 				
-				int drawStringX=-1;
-				int drawStringY=-1;
+				g.drawImage(Assets.BOARD_2D,smidX+300-translate,smidY-320,548,548,observer);
+				int drawStringX=smidX+300-translate+x*68+4;
+				int drawStringY=smidY-320+548-64-y*68-4;
+				g.drawImage(Assets.UNICORN_B, drawStringX, drawStringY,64,64, null);
+				
+				/*
 				for (int i=0;i<length;i++) {
 					for (int j=0;j<8;j++) {
 						
-						int thisSize=(int) Math.min(spaceSize-i*32,32);
-						g.drawRect(midX+100-spaceSize+i*drawSize, midY-thisSize/2-j*drawSize, thisSize, thisSize);
+						int thisSize=(int) Math.min(translate-i*32,32);
+						g.drawRect(smidX+100-translate+i*drawSize, smidY-thisSize/2-j*drawSize, thisSize, thisSize);
 						if (i==x&&j==y&&thisSize>0) {
-							g.drawImage(Assets.UNICORN_B, midX+116-spaceSize+i*drawSize-thisSize/2, midY-thisSize/2-j*drawSize,thisSize,thisSize, null);
+							g.drawImage(Assets.UNICORN_B, smidX+116-translate+i*drawSize-thisSize/2, smidY-thisSize/2-j*drawSize,thisSize,thisSize, null);
 							
-							drawStringX=midX+100-spaceSize+i*drawSize;
-							drawStringY=midY-thisSize/2-26-j*drawSize;
+							drawStringX=smidX+100-translate+i*drawSize;
+							drawStringY=smidY-thisSize/2-26-j*drawSize;
 							
 							
 							
 						}
 					
 					}
-				}
-				if (drawStringX>-1&&drawStringY>-1) {
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,41,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.setColor(Color.black);
-				}
+				}*/
+				
+				g.fillRoundRect(drawStringX+7,drawStringY-48,47,41,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x, drawStringX+16,drawStringY-32);
+				g.drawString("y: "+y, drawStringX+16,drawStringY-16);
+				g.setColor(Color.black);
 			break;
 			case 7:
 				length=8;
 				drawStringX=-1;
 				drawStringY=-1;
-				for (int i=0;i<length;i++) {
-					for (int j=0;j<8;j++) {
-						
-						int thisSize=32;
-						g.drawRect(midX+100-256+i*32, midY-32/2-j*32, 32, 32);
-						if (i==x&&j==y&&32>0) {
-							g.drawImage(Assets.UNICORN_B, midX+116-256+i*32-32/2, midY-32/2-j*32,32,32, null);
-							
-							drawStringX=midX+100-256+i*32;
-							drawStringY=midY-32/2-26-j*32;
-							
-							
-							
-						}
-					
-					}
-				}
-				if (drawStringX>-1&&drawStringY>-1) {
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,41,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.setColor(Color.black);
-				}
+				
+				g.drawImage(Assets.BOARD_2D,smidX+300-maxTranslate,smidY-320,548,548,observer);
+				drawStringX=smidX+300-maxTranslate+x*68+4;
+				drawStringY=smidY-320+548-64-y*68-4;
+				g.drawImage(Assets.UNICORN_B, drawStringX, drawStringY,64,64, null);
+				
+				g.fillRoundRect(drawStringX+7,drawStringY-48,47,41,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x, drawStringX+16,drawStringY-32);
+				g.drawString("y: "+y, drawStringX+16,drawStringY-16);
+				g.setColor(Color.black);
 			break;
 			case 8:
 				
-				length=(int)Math.min(dt/128, 4);
-				spaceSize=(int)Math.min(dt/8, 256);
+				translate=(int)Math.min(dt/8, maxTranslate);
 				
-				drawSize=Math.min(spaceSize,32);
-				
+				drawSize=Math.min(translate,32);
 				x=(int) (Math.floor(dt/1000)%8);
 				if (x>3) {
 					x=7-x;
@@ -238,38 +284,27 @@ public class Tutorial extends Screen{
 				
 				drawStringX=-1;
 				drawStringY=-1;
-				for (int i=0;i<length;i++) {
-					for (int j=0;j<4;j++) {
-						
-						int thisSize=(int) Math.min(spaceSize-i*32,32);
-						g.drawRect(midX+100-spaceSize/2+i*drawSize, midY-thisSize/2-j*drawSize-40, thisSize, thisSize);
-						if (i==x&&j==y&&thisSize>0) {
-							g.drawImage(Assets.UNICORN_B, midX+116-spaceSize/2+i*drawSize-thisSize/2, midY-thisSize/2-j*drawSize-40,thisSize,thisSize, null);
-							
-							drawStringX=midX+100-spaceSize/2+i*drawSize;
-							drawStringY=midY-thisSize/2-26-j*drawSize-40;
-							
-							
-							
-						}
-					
-					}
-				}
-				if (drawStringX>-1&&drawStringY>-1) {
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,41,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.setColor(Color.black);
-				}
+				
+				
+				
+				g.drawImage(Assets.BOARD_2DSM,smidX+500-translate,smidY-348+32,276,276,observer);
+				drawStringX=smidX+500-translate+x*68+4;
+				drawStringY=smidY-620+548-32-y*68-4;
+				g.drawImage(Assets.UNICORN_B, drawStringX, drawStringY,64,64, null);
+				
+				g.fillRoundRect(drawStringX+7,drawStringY-48,47,41,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x, drawStringX+16,drawStringY-32);
+				g.drawString("y: "+y, drawStringX+16,drawStringY-16);
+				g.setColor(Color.black);
 				
 			break;
 			case 9:
 				
 				length=(int)Math.min(dt/128, 4);
-				spaceSize=(int)Math.min(dt/8, 256);
+				translate=(int)Math.min(dt/8, maxTranslate);
 				
-				drawSize=Math.min(spaceSize,32);
+				drawSize=Math.min(translate,32);
 				
 				x=(int) (Math.floor(dt/1000)%8);
 				if (x>3) {
@@ -281,126 +316,59 @@ public class Tutorial extends Screen{
 					y=6-y;
 				}
 				
-				drawStringX=-1;
-				drawStringY=-1;
-				for (int i=0;i<4;i++) {
-					for (int j=0;j<4;j++) {
-						
-						
-						
-						g.drawRect(midX+100-128+i*32, midY-32/2-j*32-40, 32, 32);
-						if (i==x&&j==y&&32>0) {
-							g.drawImage(Assets.UNICORN_B, midX+116-128+i*32-32/2, midY-32/2-j*32-40,32,32, null);
-							
-							drawStringX=midX+100-128+i*32;
-							drawStringY=midY-32/2-26-j*32-40;
-							
-							
-							
-						}
-					
-					}
-				}
-				if (drawStringX>-1&&drawStringY>-1) {
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,41,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.setColor(Color.black);
-				}
+				g.drawImage(Assets.BOARD_2DSM,smidX+500-maxTranslate,smidY-348+32,276,276,observer);
+				g.drawImage(Assets.BOARD_2DFLAT,smidX+100-translate,smidY-48+132,1144,88,observer);
+				drawStringX=smidX+500-maxTranslate+x*68+4;
+				drawStringY=smidY-620+548-32-y*68-4;
 				
-				drawStringX=-1;
-				drawStringY=-1;
-				for (int i=0;i<length;i++) {
-					for (int j=0;j<4;j++) {
-						
-						int thisSize=(int) Math.min(spaceSize-i*32,32);
-						int slide=(int)(spaceSize*1.5);
-						g.drawRect(midX+100-slide+i*drawSize+(int)(j*drawSize*4.5), midY-thisSize/2+40, thisSize, thisSize);
-						if (i==x&&j==y&&thisSize>0) {
-							g.drawImage(Assets.UNICORN_B, midX+116-slide+i*drawSize+(int)(j*drawSize*4.5)-thisSize/2, midY-thisSize/2+40,thisSize,thisSize, null);
-							
-							drawStringX=midX+100-slide+i*drawSize+(int)(j*drawSize*4.5);
-							drawStringY=midY-thisSize/2-26+40;
-							
-							
-							
-						}
-					
-					}
-				}
-				if (drawStringX>-1&&drawStringY>-1) {
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,41,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.setColor(Color.black);
-				}
+				drawX=smidX+100-translate+x*68+12+y*(68*4+12);
+				drawY=smidY-620+548+32+132+4;
+				
+				g.drawImage(Assets.UNICORN_B, drawStringX, drawStringY,64,64, null);
+				g.drawImage(Assets.UNICORN_B, drawX, drawY,64,64, null);
+				
+				g.fillRoundRect(drawStringX+7,drawStringY-48,47,41,20, 20);
+				g.fillRoundRect(drawX+7,drawY-48,47,41,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x, drawStringX+16,drawStringY-32);
+				g.drawString("y: "+y, drawStringX+16,drawStringY-16);
+				
+				g.drawString("x: "+x, drawX+16,drawY-32);
+				g.drawString("y: "+y, drawX+16,drawY-16);
+				g.setColor(Color.black);
 				
 			break;
 			case 10:
 				
 				
-				drawStringX=-1;
-				drawStringY=-1;
-				for (int i=0;i<4;i++) {
-					for (int j=0;j<4;j++) {
-						
-						
-						
-						g.drawRect(midX+100-128+i*32, midY-32/2-j*32-40, 32, 32);
-						if (i==x&&j==y&&32>0) {
-							g.drawImage(Assets.UNICORN_B, midX+116-128+i*32-32/2, midY-32/2-j*32-40,32,32, null);
-							
-							drawStringX=midX+100-128+i*32;
-							drawStringY=midY-32/2-26-j*32-40;
-							
-							
-							
-						}
-					
-					}
-				}
-				if (drawStringX>-1&&drawStringY>-1) {
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,41,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.setColor(Color.black);
-				}
+				g.drawImage(Assets.BOARD_2DSM,smidX+500-maxTranslate,smidY-348+32,276,276,observer);
+				g.drawImage(Assets.BOARD_2DFLAT,smidX+100-maxTranslate,smidY-48+132,1144,88,observer);
+				drawStringX=smidX+500-maxTranslate+x*68+4;
+				drawStringY=smidY-620+548-32-y*68-4;
 				
-				drawStringX=-1;
-				drawStringY=-1;
-				for (int i=0;i<4;i++) {
-					for (int j=0;j<4;j++) {
-						g.drawRect(midX+100-384+i*32+(int)(j*32*4.5), midY-32/2+40, 32, 32);
-						if (i==x&&j==y&&32>0) {
-							g.drawImage(Assets.UNICORN_B, midX+116-384+i*32+(int)(j*32*4.5)-32/2, midY-32/2+40,32,32, null);
-							
-							drawStringX=midX+100-384+i*32+(int)(j*32*4.5);
-							drawStringY=midY-32/2-26+40;
-							
-							
-							
-						}
-					
-					}
-				}
-				if (drawStringX>-1&&drawStringY>-1) {
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,41,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.setColor(Color.black);
-				}
+				drawX=smidX+100-maxTranslate+x*68+12+y*(68*4+12);
+				drawY=smidY-620+548+32+132+4;
+				
+				g.drawImage(Assets.UNICORN_B, drawStringX, drawStringY,64,64, null);
+				g.drawImage(Assets.UNICORN_B, drawX, drawY,64,64, null);
+				
+				g.fillRoundRect(drawStringX+7,drawStringY-48,47,41,20, 20);
+				g.fillRoundRect(drawX+7,drawY-48,47,41,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x, drawStringX+16,drawStringY-32);
+				g.drawString("y: "+y, drawStringX+16,drawStringY-16);
+				
+				g.drawString("x: "+x, drawX+16,drawY-32);
+				g.drawString("y: "+y, drawX+16,drawY-16);
+				g.setColor(Color.black);
 				
 			break;
 			case 11,12:
 				
 				length=(int)Math.min(dt/128, 4);
-				spaceSize=(int)Math.min(dt/8, 256);
+				translate=(int)Math.min(dt/8, 256);
 				
-				drawSize=Math.min(spaceSize,32);
+				drawSize=Math.min(translate,32);
 				
 				x=(int) (Math.floor(dt/1000)%8);
 				if (x>3) {
@@ -418,180 +386,115 @@ public class Tutorial extends Screen{
 				}
 				
 				
-				drawStringX=-1;
-				drawStringY=-1;
-				for (int i=0;i<4;i++) {
-					for (int j=0;j<length;j++) {
-						for (int k=0;k<4;k++) {
-							
-							int thisSize=(int) Math.min(spaceSize-i*32,32);
-							int slide=(int)(spaceSize*1.5);
-							g.drawRect(midX+100-slide+i*drawSize+(int)(k*drawSize*4.5), midY-thisSize/2+40-j*drawSize, thisSize, thisSize);
-							if (i==x&&j==y&&k==z&&thisSize>0) {
-								g.drawImage(Assets.UNICORN_B, midX+116-slide+i*drawSize+(int)(k*drawSize*4.5)-thisSize/2, midY-thisSize/2+40-j*drawSize,thisSize,thisSize, null);
-								
-								drawStringX=midX+100-slide+i*drawSize+(int)(k*drawSize*4.5);
-								drawStringY=midY-thisSize/2-48+40-j*drawSize;
-								
-								
-								
-							}
-						}
-					
-					}
-				}
-				if (drawStringX>-1&&drawStringY>-1) {
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,57,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.drawString("z: "+z, drawStringX,drawStringY+32);
-					g.setColor(Color.black);
-				}
+				g.drawImage(Assets.BOARD_3D,8,smidY-348+32,1344,357,null);
+				
+				drawStringX=8+x*77+z*(76*4+26)+30;
+				drawStringY=smidY+357-348-32-y*77-28;
+				
+				
+				g.drawImage(Assets.UNICORN_B, drawStringX, drawStringY,64,64, null);
+				
+				g.fillRoundRect(drawStringX+7,drawStringY-64,47,57,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x, drawStringX+16,drawStringY-48);
+				g.drawString("y: "+y, drawStringX+16,drawStringY-32);
+				g.drawString("z: "+z, drawStringX+16,drawStringY-16);
+				g.setColor(Color.black);
 				
 			break;
 			case 13:
 				
 				
-				drawStringX=-1;
-				drawStringY=-1;
-				for (int i=0;i<4;i++) {
-					for (int j=0;j<4;j++) {
-						for (int k=0;k<4;k++) {
-							
-							g.drawRect(midX+100-384+i*32+(int)(k*32*4.5), midY-32/2+40-j*32, 32, 32);
-							if (i==x&&j==y&&k==z&&32>0) {
-								g.drawImage(Assets.UNICORN_B, midX+116-384+i*32+(int)(k*32*4.5)-32/2, midY-32/2+40-j*32,32,32, null);
-								
-								drawStringX=midX+100-384+i*32+(int)(k*32*4.5);
-								drawStringY=midY-32/2-48+40-j*32;
-								
-								
-								
-							}
-						}
-					
-					}
-				}
-				if (drawStringX>-1&&drawStringY>-1) {
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,57,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.drawString("z: "+z, drawStringX,drawStringY+32);
-					g.setColor(Color.black);
-				}
+				g.drawImage(Assets.BOARD_3D,8,smidY-348+32,1344,357,null);
+				
+				drawStringX=8+x*77+z*(76*4+26)+30;
+				drawStringY=smidY+357-348-32-y*77-28;
+				
+				
+				g.drawImage(Assets.UNICORN_B, drawStringX, drawStringY,64,64, null);
+				
+				g.fillRoundRect(drawStringX+7,drawStringY-64,47,57,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x, drawStringX+16,drawStringY-48);
+				g.drawString("y: "+y, drawStringX+16,drawStringY-32);
+				g.drawString("z: "+z, drawStringX+16,drawStringY-16);
+				g.setColor(Color.black);
 				
 			break;
 			case 16:
 				
 				length=(int)Math.min(dt/128, 4);
-				spaceSize=(int)Math.min(dt/8, 256);
+				translate=(int)Math.min(dt/8, 256);
 				
-				drawSize=Math.min(spaceSize,32);
+				drawSize=Math.min(translate,32);
 				
-				x=(int) (Math.floor(dt/100)%8);
+				x=(int) (Math.floor(dt/1000)%8);
 				if (x>3) {
 					x=7-x;
 				}
 				
-				y=(int) (Math.floor(dt/400)%8);
+				y=(int) (Math.floor(dt/4000)%8);
 				if (y>3) {
 					y=7-y;
 				}
 				
-				z=(int) (Math.floor(dt/1600)%8);
+				z=(int) (Math.floor(dt/16000)%8);
 				if (z>3) {
 					z=7-z;
 				}
 				
-				w=(int) (Math.floor(dt/6400)%6);
+				w=(int) (Math.floor(dt/64000)%6);
 				if (w>3) {
 					w=6-w;
 				}
 				
-				int yOff=t.getY()-80;
-				drawStringX=-1;
-				drawStringY=-1;
-				for (int i=0;i<4;i++) {
-					for (int j=0;j<4;j++) {
-						for (int k=0;k<4;k++) {
-							for(int l=0;l<length;l++) {
-								int thisSize=(int) Math.min(spaceSize-i*32,32);
-								int slide=(int)(spaceSize*1.5);
-								g.drawRect(midX+100-slide+i*drawSize+(int)(k*drawSize*4.5), yOff-thisSize/2+40-j*drawSize-(int)(l*drawSize*4.5), thisSize, thisSize);
-								if (i==x&&j==y&&k==z&&l==w&&thisSize>0) {
-									g.drawImage(Assets.UNICORN_B, midX+116-slide+i*drawSize+(int)(k*drawSize*4.5)-thisSize/2, yOff-thisSize/2+40-j*drawSize-(int)(l*drawSize*4.5),thisSize,thisSize, null);
-									
-									drawStringX=midX+100-slide+i*drawSize+(int)(k*drawSize*4.5);
-									drawStringY=yOff-thisSize/2+40-j*drawSize-(int)(l*drawSize*4.5);
-									
-									
-									
-								}
-							}
-						}
-					
-					}
-				}
+				g.drawImage(Assets.BOARD_S,smidX-384,0,768,768,null);
+				int sq=44;
+				int gap=16;
+				int sq4=4*sq;
+				int gap3d4=3*gap/4;
+				drawStringX=smidX-384+x*sq+z*(gap3d4+sq4)+gap+2;
+				drawStringY=768-y*sq-gap-w*(gap3d4+sq4)-sq+10;
 				
-				if (drawStringX>-1&&drawStringY>-1) {
-					drawStringX+=48;
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,73,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.drawString("z: "+z, drawStringX,drawStringY+32);
-					g.drawString("w: "+w, drawStringX,drawStringY+48);
-					g.setColor(Color.black);
-				}
+				
+				g.drawImage(Assets.UNICORN_B, drawStringX, drawStringY,32,32, null);
+				
+				g.fillRoundRect(drawStringX+32,drawStringY,140,25,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x+"  y: "+y+"  z: "+z+"  w: "+w, drawStringX+40,drawStringY+18);
+				g.setColor(Color.black);
 				
 			break;
 			case 17,18:
 				
 				length=(int)Math.min(dt/128, 4);
-				spaceSize=(int)Math.min(dt/8, 256);
+				translate=(int)Math.min(dt/8, 256);
 				
-				drawSize=Math.min(spaceSize,32);
+				drawSize=Math.min(translate,32);
 				
 				
-				yOff=t.getY()-80;
-				drawStringX=-1;
-				drawStringY=-1;
-				for (int i=0;i<4;i++) {
-					for (int j=0;j<4;j++) {
-						for (int k=0;k<4;k++) {
-							for(int l=0;l<4;l++) {
-								g.drawRect(midX+100-384+i*32+(int)(k*32*4.5), yOff-32/2+40-j*32-(int)(l*32*4.5), 32, 32);
-								if (i==x&&j==y&&k==z&&l==w) {
-									g.drawImage(Assets.UNICORN_B, midX+116-384+i*32+(int)(k*32*4.5)-32/2, yOff-32/2+40-j*32-(int)(l*32*4.5),32,32, null);
-									
-									drawStringX=midX+100-384+i*32+(int)(k*32*4.5);
-									drawStringY=yOff-32/2+40-j*32-(int)(l*32*4.5);
-									
-									
-									
-								}
-							}
-						}
-					
-					}
-				}
+				g.drawImage(Assets.BOARD_S,smidX-384,0,768,768,null);
+				sq=44;
+				gap=16;
+				sq4=4*sq;
+				gap3d4=3*gap/4;
+				drawStringX=smidX-384+x*sq+z*(gap3d4+sq4)+gap+2;
+				drawStringY=768-y*sq-gap-w*(gap3d4+sq4)-sq+10;
 				
-				if (drawStringX>-1&&drawStringY>-1) {
-					drawStringX+=48;
-					g.fillRoundRect(drawStringX-7,drawStringY-17,47,73,20, 20);
-					g.setColor(Color.white);
-					g.drawString("x: "+x, drawStringX,drawStringY);
-					g.drawString("y: "+y, drawStringX,drawStringY+16);
-					g.drawString("z: "+z, drawStringX,drawStringY+32);
-					g.drawString("w: "+w, drawStringX,drawStringY+48);
-					g.setColor(Color.black);
-				}
+				
+				g.drawImage(Assets.UNICORN_B, drawStringX, drawStringY,32,32, null);
+				
+				g.fillRoundRect(drawStringX+32,drawStringY,140,25,20, 20);
+				g.setColor(Color.white);
+				g.drawString("x: "+x+"  y: "+y+"  z: "+z+"  w: "+w, drawStringX+40,drawStringY+18);
+				g.setColor(Color.black);
 				
 			break;
 		}
-		
+		if (t.getY()==sHeight-40) {
+			float opacity = 0.3f;
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+		}
 		t.setGraphics(g);
 		g.setColor(Color.white);
 		t.draw();
@@ -604,7 +507,8 @@ public class Tutorial extends Screen{
 			oldHeight=observer.getHeight();
 			midX=oldWidth/2;
 			midY=oldHeight/2;
-			t.setPos(midX-300, oldHeight-205);
+			drawSceneWidth=(int)(oldHeight*ratio);
+			drawSceneX=(oldWidth-drawSceneWidth)/2;
 		}
 		dt=System.currentTimeMillis()-time;
 		switch (step) {
@@ -613,11 +517,17 @@ public class Tutorial extends Screen{
 		
 	}
 	
+	public Point convert(Point p) {
+		return new Point((int)(((double)(p.x-drawSceneX)/drawSceneWidth)*sWidth),(int)((double)(p.y)/oldHeight*sHeight));
+	}
+	
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode()==KeyEvent.VK_BACK_SLASH) {
 			Main.cmd.setVisible(true);
 		}  else if (e.getKeyCode()==KeyEvent.VK_M) {
 			observer.toggleMusic();
+		}  else if (e.getKeyCode()==KeyEvent.VK_ESCAPE) {
+			observer.setScreen("title");
 		}
 		switch (step) {
 			case 3:
@@ -726,7 +636,8 @@ public class Tutorial extends Screen{
 	}
 	
 	public void mousePressed(MouseEvent e) {
-		if (t.contains(e.getPoint())) {
+		Point p=convert(e.getPoint());
+		if (t.contains(p)) {
 			if (e.getButton()==MouseEvent.BUTTON1) {
 				if (step<dialogue.length-1) {
 					step++;
@@ -754,6 +665,7 @@ public class Tutorial extends Screen{
 			} else if (e.getButton()==MouseEvent.BUTTON3) {
 				if (step>0) {
 					step--;
+					t.setText(dialogue[step]);
 					switch (step) {
 						case 2,5,6:
 						break;
@@ -786,6 +698,12 @@ public class Tutorial extends Screen{
 	}
 	
 	public void mouseMoved(MouseEvent e) {
+		Point p=convert(e.getPoint());
+		if (t.contains(p)) {
+			t.setPos(smidX-300,sHeight-205);
+		} else {
+			t.setPos(smidX-300,sHeight-40);
+		}
 		switch (step) {
 		
 		}
@@ -797,6 +715,7 @@ public class Tutorial extends Screen{
 		Main.f.setExtendedState(Frame.MAXIMIZED_BOTH);
 		time=System.currentTimeMillis();
 		step=0;
+		t.setText(dialogue[step]);
 	}
 
 	@Override

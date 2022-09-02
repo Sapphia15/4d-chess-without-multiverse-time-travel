@@ -11,6 +11,11 @@ public class Assets {
 	
 	public static final Image BOARD=new ImageIcon("assets/board.png").getImage();
 	public static final Image BOARD_S=new ImageIcon("assets/boardS.png").getImage();
+	public static final Image BOARD_1D=new ImageIcon("assets/1Dboard.png").getImage();
+	public static final Image BOARD_2D=new ImageIcon("assets/2Dboard.png").getImage();
+	public static final Image BOARD_2DSM=new ImageIcon("assets/2Dboardsm.png").getImage();
+	public static final Image BOARD_3D=new ImageIcon("assets/3Dboard.png").getImage();
+	public static final Image BOARD_2DFLAT=new ImageIcon("assets/2Dboardflat.png").getImage();
 	public static final Image HOTKEYS=new ImageIcon("assets/hotkeys.png").getImage();
 	
 	public static final Image GHOST_W=new ImageIcon("assets/GhostW.png").getImage();
