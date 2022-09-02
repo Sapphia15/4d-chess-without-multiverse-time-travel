@@ -20,6 +20,7 @@ public class Main {
 	public static final Console cmd=new Console();
 	public static final Random rand=new Random();
 	public static final Sounds sounds=new Sounds();
+	public static final Frame f=new Frame();
 	
 	public static void main(String[] unicorns) {
 		Console.s.setTitle("4d Chess Notation");
@@ -33,13 +34,14 @@ public class Main {
 		sounds.setSourcePath("assets/");
 		new Assets();
 		//Console.s.println(new Point(new Tuple(new double[] {2,3,1,3})).equals(new Point(new Tuple(new double[] {2,3,1,3}))));
-		Frame f=new Frame();
 		f.setLocationRelativeTo(null);
 		f.setPreferredSize(new Dimension(804,654));
 		Panel panel=new Panel(f);
 		f.add(panel);
 		
 		f.pack();
+		Main.sounds.playSoundOnLoop("tutorial.wav", 0);
+		Main.sounds.pauseSound("tutorial.wav");
 		Main.sounds.playSoundOnLoop("For_Dee.wav", 0);
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);

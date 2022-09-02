@@ -19,6 +19,7 @@ public class Title extends Screen{
 	Rectangle exit;
 	Rectangle clocks;
 	Rectangle online;
+	Rectangle tutorial;
 	Rectangle hyperVox;
 	int oldWidth=0;
 	int oldHeight=0;
@@ -32,7 +33,9 @@ public class Title extends Screen{
 		exit=new Rectangle(midX-100,midY+100,200,100);
 		clocks=new Rectangle(10,10,100,50);
 		online=new Rectangle(midX-100,midY-350,200,100);
+		tutorial=new Rectangle(midX+150,midY-75,200,100);
 		hyperVox=new Rectangle(10,midY*2-64,64,64);
+		
 	}
 	
 	@Override
@@ -42,6 +45,7 @@ public class Title extends Screen{
 		g.fillRoundRect(ai.x, ai.y, ai.width, ai.height, 20, 20);
 		g.fillRoundRect(exit.x, exit.y, exit.width, exit.height, 20, 20);
 		g.fillRoundRect(online.x, online.y, online.width, online.height, 20, 20);
+		g.fillRoundRect(tutorial.x, tutorial.y, tutorial.width, tutorial.height, 20, 20);
 		if (observer.clocks()) {
 			g.setColor(Color.green);
 		} else {
@@ -55,6 +59,7 @@ public class Title extends Screen{
 		g.drawString("AI",(int) ai.getCenterX()-50,(int)ai.getCenterY());
 		g.drawString("Exit",(int) exit.getCenterX()-50,(int)exit.getCenterY());
 		g.drawString("Online",(int) online.getCenterX()-50,(int)online.getCenterY());
+		g.drawString("Tutorial",(int) tutorial.getCenterX()-50,(int)tutorial.getCenterY());
 		g.setColor(Color.black);
 		g.drawString("Clocks",(int) clocks.getCenterX()-(int)g.getFontMetrics().getStringBounds("Clocks", g).getWidth()/2,(int)clocks.getCenterY()+(int)g.getFontMetrics().getStringBounds("Clocks", g).getHeight()/4);
 		g.drawImage(Assets.UNICORN_B, hyperVox.x, hyperVox.y, hyperVox.width, hyperVox.height, observer);
@@ -72,7 +77,9 @@ public class Title extends Screen{
 			ai=new Rectangle(midX-100,midY,200,100);
 			exit=new Rectangle(midX-100,midY+150,200,100);
 			online=new Rectangle(midX-100,midY-300,200,100);
+			tutorial=new Rectangle(midX+150,midY-75,200,100);
 			hyperVox=new Rectangle(10,midY*2-64,64,64);
+			
 		}
 		
 	}
@@ -100,6 +107,8 @@ public class Title extends Screen{
 			observer.setScreen("online");
 		} else if (hyperVox.contains(e.getPoint())) {
 			observer.setScreen("hyperVox");
+		} else if (tutorial.contains(e.getPoint())) {
+			observer.setScreen("tutorial");
 		}
 	}
 	
@@ -109,7 +118,7 @@ public class Title extends Screen{
 	
 	@Override
 	public void setInit() {
-		
+		observer.setSong("For_Dee.wav");
 	}
 
 	@Override

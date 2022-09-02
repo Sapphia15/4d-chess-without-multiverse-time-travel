@@ -14,6 +14,7 @@ import unicorns.screens.Game;
 import unicorns.screens.HyperVox;
 import unicorns.screens.Online;
 import unicorns.screens.Title;
+import unicorns.screens.Tutorial;
 
 public class Panel extends SPanel{
 
@@ -21,6 +22,7 @@ public class Panel extends SPanel{
 	boolean clocks=true;
 	boolean online;
 	boolean music=true;
+	String song="For_Dee.wav";
 	ClientController controller;
 	
 	public Panel(Frame observer) {
@@ -30,6 +32,7 @@ public class Panel extends SPanel{
 		this.screens.put("title", new Title(this));
 		this.screens.put("online", new Online(this));
 		this.screens.put("hyperVox", new HyperVox(this));
+		this.screens.put("tutorial", new Tutorial(this));
 		this.currentScreen=screens.get("title");
 		this.setScreen("title");
 		
@@ -137,9 +140,19 @@ public class Panel extends SPanel{
 	public void toggleMusic() {
 		music=!music;
 		if (music) {
-			Main.sounds.resumeSound("For_Dee.wav");
+			Main.sounds.resumeSound(song);
 		} else {
-			Main.sounds.pauseSound("For_Dee.wav");
+			Main.sounds.pauseSound(song);
+		}
+	}
+	
+	public void setSong(String song) {
+		if (!this.song.equals(song)) {
+			if (music) {
+				Main.sounds.pauseSound(this.song);
+				Main.sounds.resumeSound(song);
+				this.song=song;
+			}
 		}
 	}
 	
