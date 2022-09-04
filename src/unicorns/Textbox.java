@@ -31,6 +31,14 @@ public class Textbox{
 		reset();
 	}
 	
+	public void setSpeaker(String s) {
+		this.speaker=s;
+	}
+	
+	public void setPortrait(Image i) {
+		this.portrait=i;
+	}
+	
 	public void reset() {
 		lastTime=System.currentTimeMillis();
 	}

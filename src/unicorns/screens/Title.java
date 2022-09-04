@@ -20,6 +20,7 @@ public class Title extends Screen{
 	Rectangle clocks;
 	Rectangle online;
 	Rectangle tutorial;
+	Rectangle map;
 	Rectangle hyperVox;
 	int oldWidth=0;
 	int oldHeight=0;
@@ -35,6 +36,7 @@ public class Title extends Screen{
 		online=new Rectangle(midX-100,midY-350,200,100);
 		tutorial=new Rectangle(midX+150,midY-75,200,100);
 		hyperVox=new Rectangle(10,midY*2-64,64,64);
+		map=new Rectangle(midX+150,midY+75,200,100);
 		
 	}
 	
@@ -46,6 +48,7 @@ public class Title extends Screen{
 		g.fillRoundRect(exit.x, exit.y, exit.width, exit.height, 20, 20);
 		g.fillRoundRect(online.x, online.y, online.width, online.height, 20, 20);
 		g.fillRoundRect(tutorial.x, tutorial.y, tutorial.width, tutorial.height, 20, 20);
+		g.fillRoundRect(map.x, map.y, map.width, map.height, 20, 20);
 		if (observer.clocks()) {
 			g.setColor(Color.green);
 		} else {
@@ -60,6 +63,7 @@ public class Title extends Screen{
 		g.drawString("Exit",(int) exit.getCenterX()-50,(int)exit.getCenterY());
 		g.drawString("Online",(int) online.getCenterX()-50,(int)online.getCenterY());
 		g.drawString("Tutorial",(int) tutorial.getCenterX()-50,(int)tutorial.getCenterY());
+		g.drawString("Map Maker",(int) map.getCenterX()-50,(int)map.getCenterY());
 		g.setColor(Color.black);
 		g.drawString("Clocks",(int) clocks.getCenterX()-(int)g.getFontMetrics().getStringBounds("Clocks", g).getWidth()/2,(int)clocks.getCenterY()+(int)g.getFontMetrics().getStringBounds("Clocks", g).getHeight()/4);
 		g.drawImage(Assets.UNICORN_B, hyperVox.x, hyperVox.y, hyperVox.width, hyperVox.height, observer);
@@ -78,6 +82,7 @@ public class Title extends Screen{
 			exit=new Rectangle(midX-100,midY+150,200,100);
 			online=new Rectangle(midX-100,midY-300,200,100);
 			tutorial=new Rectangle(midX+150,midY-75,200,100);
+			map=new Rectangle(midX+150,midY+75,200,100);
 			hyperVox=new Rectangle(10,midY*2-64,64,64);
 			
 		}
@@ -109,6 +114,8 @@ public class Title extends Screen{
 			observer.setScreen("hyperVox");
 		} else if (tutorial.contains(e.getPoint())) {
 			observer.setScreen("tutorial");
+		} else if (map.contains(e.getPoint())) {
+			observer.setScreen("map");
 		}
 	}
 	

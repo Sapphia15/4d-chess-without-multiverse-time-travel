@@ -12,6 +12,7 @@ import graphics.screen.SPanel;
 import unicorns.net.ClientController;
 import unicorns.screens.Game;
 import unicorns.screens.HyperVox;
+import unicorns.screens.Mapper;
 import unicorns.screens.Online;
 import unicorns.screens.Title;
 import unicorns.screens.Tutorial;
@@ -33,6 +34,7 @@ public class Panel extends SPanel{
 		this.screens.put("online", new Online(this));
 		this.screens.put("hyperVox", new HyperVox(this));
 		this.screens.put("tutorial", new Tutorial(this));
+		this.screens.put("map", new Mapper(this));
 		this.currentScreen=screens.get("title");
 		this.setScreen("title");
 		

@@ -47,25 +47,96 @@ public class Tutorial extends Screen{
 	
 	
 	String[] dialogue= {
+		//0
 		"Welcome to the tutorial!",
+		//1
 		"Let's start with one dimension. In one dimension, you can only move back and fourth and you need one number to describe your position. Let's call that number x.",
+		//2
 		"So when you move right one square your x goes up by one and when you move left one square your x goes down by one.",
+		//3
 		"Go ahead and play around a little bit on this one dimensional board. Use the A and D keys to move left and right.",
+		//4
 		"Alright, now that you understand movement in position in one dimension, lets take it up a dimension. In two dimensions you need two numbers to describe your position. We can call these numbers x and y.",
+		//5
 		"Now there are four basic directions that you can move in: left, right, up, and down. Every dimension corresponds to two basic directions.",
+		//6
 		"In this case, one dimension corresponds to left and right while the other dimension corresponds to up and down. Moving left and right changes x just like in one dimension and moving up and down changes y. Because of this, it makes sense to call the dimension corresponding to left and right the x dimension and the dimension corresponding to up and down the y dimension.",
+		//7
 		"Go ahead and play around a little bit on this two dimensional board. Use the A and D keys to move left and right and the W and S keys to move up and down.",
+		//8
 		"Before continuing to three dimensions we need to go over dimensional squishification because without dimensional squishification, you can't look at anything with more than two dimensions all at the same time.",
+		//9
 		"There are many ways one can perform dimensional squishification but the kind used by most high dimensional board games (including 4D chess without multiverse timetravel) is to take all of the rows of a two dimensional board and lay them out next to each other in a line so that you can see every part of the two dimensional board in a one dimensional view.",
+		//10
 		"Go ahead and play around a little bit on this two dimensional board and pay attention to how the one dimensional view changes as you move.",
+		//11
 		"Hopefully you have a grasp on how to interpret a squishified view now. If you're still feeling confused, you can right click the dialogue box to go back to the last part of the tutorial and keep honing your intuitions.",
+		//12
 		"Above is a three dimensional board. The the x dimension and the z dimension have been squishified to make a two dimensional view of the entire board. The z dimension corresponds the basic directions forward and backward.",
+		//13
 		"Go ahead and play around a little bit on this three dimensional board and pay attention to how the position numbers and view change as you move. Use the A and D keys to move left and right, the Q and E keys to move forward and backward, and the W and S keys to move up and down.",
+		//14
 		"Now it's time four four dimensions!",
+		//15
 		"I mean... Now it's time for four dimensions!",
+		//16
 		"Above is four dimensional board. The x and z dimensions are squishified horizontally and the y and w dimensions are are squishified vertically. The w dimension corresponds to the directions ana and kata (also known by some as wint and zant or on and again).",
+		//17
 		"Go ahead and play around a little bit on this four dimensional board and pay attention to how the position numbers and view change as you move. Use the A and D keys to move left and right, the Q and E keys to move forward and backward, the W and S keys to move up and down, and the Space and Shift keys to move ana and kata.",
-		"Congratulations! You finished the tutorial! A more in depth tutorial that explains piece movement and general 4D chess rules is coming soon! Once you're ready, left click the dialogue box to return to the menu.",
+		//18
+		"Alright, now that you have a basic understanding a four dimensional space, lets talk chess. Before moving on I should note that in 4D chess the basic direction names are a little different from what I said a momement ago. In 4D chess the y axis corresponds to the forward and backward directions, the w axis corresponds to the up and down directions, the x axis corresponds to the right and left directions, and the z axis corresponds to the ana and kata directions.",
+		//19
+		"The reason for this is because both forward and up go toward your opponent's back square of pieces but the x and z axis are still squishified horizontally and the y and w axis are still squishified vertically.",
+		//20
+		"Okay, on to the first piece: the rook can move in any one of the 8 basic directions as number of spaces as long there isn't a piece in the way.",
+		//21
+		"Go ahead and play around a little bit with this rook. I've added some crystal blocks to the board so that you can see how obstacles affect your movement.",
+		//22
+		"Now that you are familiar with the rook, it's time to learn about bishops. Bishops move in two basic directions at the same time. For example, a bishop could move left and forward at the same time. Another way to think about this is to say that when bishops move, two of their position numbers must change by the same amount and the rest stay the same. So a bishop at (3,5,2,0) could move to (4,5,1,0) because the the x and z values both changed by 1 while all of the other position values stayed the same.",
+		//23
+		"Go ahead and play around a little bit with this bishop.",
+		//24
+		"You may have noticed that bishops can only access half of the squares on the board no matter how many times they move.",
+		//25
+		"This is my favorite part! In 4D chess unicorns move in three basic directions at the same time. For example, a unicorn could move forward, up, and left at the same time. Similar to bishops, you can think of this as the unicorn only being able to move so that three of it's numbers change by the same amount and the rest stay the same. So unicorn at (3,3,0,3) could move to (1,1,2,3) because the x, y, and z values all changed by 2 and the w value stayed the same.",
+		//26
+		"Go ahead and play around a little bit with this other cute little unicorn.",
+		//27
+		"Unicorns are cool because they can move in three dimensions at a time but they still have access to every square on the board.",
+		//28
+		"Aaaaaaah! It's a dragon!",
+		//29
+		"Just kidding, this is my friend Delilah and she's a very nice dragon that you don't need to fear.",
+		//30 Delilah
+		"Hi! Dragons like me move quadragonally!",
+		//31
+		"...",
+		//32
+		"Get it? Qua-DRAGON-ally?",
+		//33
+		"Haha! Okay, anyway, what that actually means is that dragons move in four basic directions at a time. Like, I could go backward, up, left, and kata all at the same time. That means that when I move all of my position values have to change by the same amount. Like, if I was at (2,2,2,2) I could go to (0,4,0,4) since all my positional numbers would change by 2.",
+		//34
+		"Alright, now try telling where to go until you feel very comfortable ordering me around.",
+		//35
+		"I'm sure you must have noticed that I can't access very squares. In fact, I can only get to an eighth of the spaces on the board only moving quadragonally.",
+		//36
+		"That's just a price we dragons have to pay to be able to move in all four dimensions at the same time...",
+		//37 Dee
+		"I hope you had a fun with Delilah but now it's time to spend some more time with me as I teach you the ways of the other pieces.",
+		//38 Delilah 
+		"You mean you're not going to introduce them to the others?",
+		//39 Dee
+		"What do you mean? This is a tutorial, not a 'get to know your chess pieces event'!",
+		//40 Queen Xeraphina
+		"I, Queen Xeraphina, hereby declare this part of the tutorial as a get to know your pieces event. This is Bob the bishop, and those are his boyfriends Bert, Billy, and Brad. They always seem to be frowning because they still haven't figured out how to do a four way kiss.",
+		//41 Queen Fnora
+		"Xeraphina, my love, why don't you show the player how you move?",
+		//42 Queen Xeraphina
+		"Alright, hit the music! I can move like a rook, like a bishop, like a unicorn, or even like a dragon if I want. Dance with me.",
+		//43 (Xeraphina's dance music plays)
+		
+		//44
+		"Congratulations! You finished the tutorial! If you're still confused or have any questions be sure to ask Sapphia on itch.io or discord. Once you're ready, left click the dialogue box to return to the menu.",
 	};
 	
 	int step=0;
@@ -654,6 +725,27 @@ public class Tutorial extends Screen{
 						break;
 						case 8:
 							bound=3;
+							time=System.currentTimeMillis();
+						break;
+						case 30:
+							t.setSpeaker("Delilah");
+							t.setPortrait(Assets.DRAGON_B);
+						break;
+						case 37,39:
+							t.setSpeaker("Dee");
+							t.setPortrait(Assets.UNICORN_B);
+							time=System.currentTimeMillis();
+						break;
+						case 38,40,42:
+							t.setSpeaker("Queen Xeraphina");
+							t.setPortrait(Assets.QUEEN_W);
+							time=System.currentTimeMillis();
+						break;
+						case 41:
+							t.setSpeaker("Queen Fnora");
+							t.setPortrait(Assets.QUEEN_B);
+							time=System.currentTimeMillis();
+						break;
 						default:
 							time=System.currentTimeMillis();
 						break;
@@ -680,6 +772,25 @@ public class Tutorial extends Screen{
 								x=7;
 							}
 							bound=7;
+							time=System.currentTimeMillis();
+						break;
+						case 36:
+							t.setSpeaker("Delilah");
+							t.setPortrait(Assets.DRAGON_B);
+						break;
+						case 29,37,39:
+							t.setSpeaker("Dee");
+							t.setPortrait(Assets.UNICORN_B);
+							time=System.currentTimeMillis();
+						break;
+						case 38,40,42:
+							t.setSpeaker("Queen Xeraphina");
+							t.setPortrait(Assets.QUEEN_W);
+							time=System.currentTimeMillis();
+						break;
+						case 41:
+							t.setSpeaker("Queen Fnora");
+							t.setPortrait(Assets.QUEEN_B);
 							time=System.currentTimeMillis();
 						break;
 						case 8:
