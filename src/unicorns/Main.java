@@ -40,6 +40,8 @@ public class Main {
 		f.add(panel);
 		
 		f.pack();
+		Main.sounds.playSoundOnLoop("Xeraphina's_Dancing_Song.wav", 0);
+		Main.sounds.pauseSound("Xeraphina's_Dancing_Song.wav");
 		Main.sounds.playSoundOnLoop("tutorial.wav", 0);
 		Main.sounds.pauseSound("tutorial.wav");
 		Main.sounds.playSoundOnLoop("For_Dee.wav", 0);

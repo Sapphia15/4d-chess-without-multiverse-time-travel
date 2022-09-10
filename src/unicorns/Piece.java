@@ -371,6 +371,10 @@ public class Piece {
 				return Assets.GHOST_B;
 			case 'G':
 				return Assets.GHOST_W;
+			case 'C':
+				return Assets.CRYSTAL;
+			case 'c':
+				return Assets.CRYSTAL;
 		}
 		return null;
 	}

@@ -118,6 +118,16 @@ public class Board {
 		lastState=this.clone();
 	}
 	
+	public void setUp(Piece[] pieces) {
+		setState(new Board());
+		this.pieces.clear();
+		for (Piece p:pieces) {
+			p.firstMove=true;
+			this.pieces.add(p);
+		}
+		
+	}
+	
 	public void experimentSetUp(){
 		setState(new Board());
 		pieces.clear();
@@ -216,7 +226,9 @@ public class Board {
 	}
 	
 	public void move(Point p) {
-		
+		if (lastState==null) {
+			lastState=this.clone();
+		}
 		Board oldState=lastState.clone();
 		lastState=this.clone();
 		lastState.lastState=oldState.clone();//this will allow for any number of undos during analysis
@@ -497,7 +509,7 @@ public class Board {
 	public boolean moveIsLegal(Point start, Point end) {
 		Board testBoard=this.clone();
 		testBoard.makeMove(start, end);
-		return testBoard.playerInCheck(testBoard.pieceAt(end).white);
+		return testBoard.playerInCheck(testBoard.pieceAt(start).white);
 	}
 	
 	public boolean makeMove(Point start,Point end,Point intermed,char promotion) {

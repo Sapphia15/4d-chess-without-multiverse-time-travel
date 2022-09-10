@@ -193,6 +193,8 @@ public class Mapper extends Screen {
 			}
 		} else if (e.getKeyCode()==KeyEvent.VK_L) {
 			letterDisplay=!letterDisplay;
+		} else if (e.getKeyCode()==KeyEvent.VK_ESCAPE) {
+			observer.setScreen("title");
 		}
 	}
 	

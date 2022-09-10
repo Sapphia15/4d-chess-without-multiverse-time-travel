@@ -2,6 +2,7 @@ package unicorns;
 
 import java.awt.Frame;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -11,11 +12,14 @@ import gameutil.text.Console;
 import graphics.screen.SPanel;
 import unicorns.net.ClientController;
 import unicorns.screens.Game;
+import unicorns.screens.HowToPlay;
 import unicorns.screens.HyperVox;
 import unicorns.screens.Mapper;
 import unicorns.screens.Online;
 import unicorns.screens.Title;
-import unicorns.screens.Tutorial;
+import unicorns.screens.TutorialIntro;
+import unicorns.screens.TutorialScreen;
+import unicorns.screens.TutorialSelect;
 
 public class Panel extends SPanel{
 
@@ -26,14 +30,25 @@ public class Panel extends SPanel{
 	String song="For_Dee.wav";
 	ClientController controller;
 	
+	public static  final int sWidth=1360;
+	public static  final int sHeight=768;
+	public static  final int smidX=sWidth/2;
+	public static final int smidY=sHeight/2;
+	public BufferedImage scene;
+	public int drawSceneWidth=sWidth;
+	public int drawSceneX=0;
+	public static final double ratio=((double)sWidth)/sHeight;
+	
 	public Panel(Frame observer) {
 		super(observer);
-		
+		TutorialScreen.initRects();
 		this.screens.put("game", new Game(this));
 		this.screens.put("title", new Title(this));
 		this.screens.put("online", new Online(this));
 		this.screens.put("hyperVox", new HyperVox(this));
-		this.screens.put("tutorial", new Tutorial(this));
+		this.screens.put("tutorial", new TutorialSelect(this));
+		this.screens.put("Intro To 4D", new TutorialIntro(this));
+		this.screens.put("How To Play 4D Chess", new HowToPlay(this));
 		this.screens.put("map", new Mapper(this));
 		this.currentScreen=screens.get("title");
 		this.setScreen("title");
@@ -51,6 +66,11 @@ public class Panel extends SPanel{
 			e.printStackTrace();
 		}*/
 		
+	}
+	
+	public void initScene(){
+		scene=new BufferedImage(sWidth,sHeight, BufferedImage.TYPE_INT_ARGB);
+		//g.setBackground(new Color(255,255,255,0));
 	}
 	
 	public boolean ai() {
@@ -156,6 +176,10 @@ public class Panel extends SPanel{
 				this.song=song;
 			}
 		}
+	}
+	
+	public java.awt.Point convert(java.awt.Point p) {
+		return new java.awt.Point((int)(((double)(p.x-drawSceneX)/drawSceneWidth)*sWidth),(int)((double)(p.y)/this.getHeight()*sHeight));
 	}
 	
 	public HyperVox getHyperVox() {

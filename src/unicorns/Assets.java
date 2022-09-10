@@ -39,11 +39,14 @@ public class Assets {
 	public static final Image QUEEN_B=new ImageIcon("assets/QueenB.png").getImage();
 	
 	public static final Image TEXT_BOX=new ImageIcon("assets/textbox.png").getImage();
+	public static final Image LABLE=new ImageIcon("assets/LableDR.png").getImage();
+	public static final Image LABLE_CONTINUE=new ImageIcon("assets/LableContinue.png").getImage();
 	
 	public static final Image PORTRAIT=new ImageIcon("assets/portraitbg.png").getImage();
 	
 	//For Dee stuff (the unicorn above is also used in For Dee)
 	public static final Image BOARD_5=new ImageIcon("assets/board5.png").getImage();
+	public static final Image CRYSTAL=new ImageIcon("assets/crystal.png").getImage();
 	public static final Image VOX=new ImageIcon("assets/floor.png").getImage();
 	public static final Image EXIT=new ImageIcon("assets/exit.png").getImage();
 	public static final Image PARAVOX=new ImageIcon("assets/paravox.png").getImage();
