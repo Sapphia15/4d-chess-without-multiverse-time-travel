@@ -70,7 +70,7 @@ public class TutorialIntro extends TutorialScreen{
 		//17
 		"Go ahead and play around a little bit on this four dimensional board and pay attention to how the position numbers and view change as you move. Use the A and D keys to move left and right, the Q and E keys to move forward and backward, the W and S keys to move up and down, and the Space and Shift keys to move ana and kata.",
 		//18
-		"Congratulations! You finished the Intro to 4D tutorial! Once you're ready, left click the dialogue box to return to the tutorial selection.",
+		"Congratulations! You finished the Intro to 4D tutorial! Once you're ready, left click the dialogue box to return to the tutorial selection screen.",
 	});
 		
 	}

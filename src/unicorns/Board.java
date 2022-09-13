@@ -31,6 +31,35 @@ public class Board {
 		
 	}
 	
+	public void setUpWhitePawnsWithCapturableCrystals() {
+		setState(new Board());
+		for (int i=0; i<4; i++) {
+			for (int k=0;k<4;k++) {
+				pieces.add(new Piece(new Point(new Tuple(new double[] {i,0,k,1})),'P'));
+				
+				pieces.add(new Piece(new Point(new Tuple(new double[] {i,1,k,0})),'P'));
+				
+				pieces.add(new Piece(new Point(new Tuple(new double[] {i,3,k,2})),'c'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {i,2,k,3})),'c'));
+			}
+		}
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,0,1})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,1,1})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {2,1,1,1})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,2,1})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {2,1,2,1})),'P'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,3,1})),'P'));
+		
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,0,2})),'c'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,1,2})),'c'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {2,2,1,2})),'c'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,2,2})),'c'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {2,2,2,2})),'c'));
+		pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,3,2})),'c'));
+		
+		
+	}
+	
 	public void setUp() {
 		//reset to an empty board with default values
 		setState(new Board());
@@ -45,6 +74,8 @@ public class Board {
 				pieces.add(new Piece(new Point(new Tuple(new double[] {i,3,k,2})),'p'));
 				pieces.add(new Piece(new Point(new Tuple(new double[] {i,2,k,3})),'p'));
 			}
+			
+			
 		}
 		
 		pieces.remove(pieceAt(new Point(new Tuple(new double[] {1,0,1,1}))));

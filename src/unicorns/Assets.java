@@ -43,6 +43,7 @@ public class Assets {
 	public static final Image LABLE_CONTINUE=new ImageIcon("assets/LableContinue.png").getImage();
 	
 	public static final Image PORTRAIT=new ImageIcon("assets/portraitbg.png").getImage();
+	public static final Image HEART=new ImageIcon("assets/heart.png").getImage();
 	
 	//For Dee stuff (the unicorn above is also used in For Dee)
 	public static final Image BOARD_5=new ImageIcon("assets/board5.png").getImage();

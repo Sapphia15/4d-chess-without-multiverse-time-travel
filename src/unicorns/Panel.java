@@ -48,7 +48,7 @@ public class Panel extends SPanel{
 		this.screens.put("hyperVox", new HyperVox(this));
 		this.screens.put("tutorial", new TutorialSelect(this));
 		this.screens.put("Intro To 4D", new TutorialIntro(this));
-		this.screens.put("How To Play 4D Chess", new HowToPlay(this));
+		this.screens.put("How To Play 4D Chess Without Multiverse Time Travel", new HowToPlay(this));
 		this.screens.put("map", new Mapper(this));
 		this.currentScreen=screens.get("title");
 		this.setScreen("title");
@@ -91,6 +91,10 @@ public class Panel extends SPanel{
 	
 	public boolean clocks() {
 		return clocks;
+	}
+	
+	public boolean isMusicOn() {
+		return music;
 	}
 	
 	public void setClocks(boolean clocks) {

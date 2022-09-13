@@ -147,6 +147,15 @@ public class TutorialScreen extends Screen{
 	
 	public void drawBoardAndPieces(Graphics g) {
 		drawBoard(g);
+		if (b.getGhost()!=null) {
+			Image ghost=null;
+			if (b.getGhostPiece().isWhite()) {
+				ghost=Assets.GHOST_W;
+			} else {
+				ghost=Assets.GHOST_B;
+			}
+			g.drawImage(ghost, toScreenX((int)b.getGhost().tuple.i(0),(int)b.getGhost().tuple.i(2)), toScreenY((int)b.getGhost().tuple.i(1),(int)b.getGhost().tuple.i(3)), null);
+		}
 		for (Piece p:b.getPieces()) {
 			g.drawImage(p.getImage(), toScreenX(p.getX(),p.getZ()), toScreenY(p.getY(),p.getW()), null);
 		}

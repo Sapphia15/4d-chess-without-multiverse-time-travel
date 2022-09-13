@@ -28,7 +28,7 @@ public class TutorialSelect extends Screen {
 	public TutorialSelect(Panel p) {
 		this.observer=p;
 		chapters.put(new Rectangle(140,100,600,32), "Intro To 4D");
-		chapters.put(new Rectangle(140,164,600,32), "How To Play 4D Chess");
+		chapters.put(new Rectangle(140,164,600,32), "How To Play 4D Chess Without Multiverse Time Travel");
 		//hover=new Rectangle(40,100,360,32);
 	}
 	
@@ -46,6 +46,9 @@ public class TutorialSelect extends Screen {
 		observer.initScene();
 		
 		Graphics2D g=observer.scene.createGraphics();
+		g.setFont(g.getFont().deriveFont(32f));
+		g.setColor(Color.yellow);
+		g.drawString("Tutorial Selection Screen",observer.smidX-100,64);
 		g.setFont(g.getFont().deriveFont(16f));
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
 		for (Rectangle r:chapters.keySet()) {

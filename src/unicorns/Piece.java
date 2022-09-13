@@ -58,7 +58,7 @@ public class Piece {
 						if (p!=null &&p.white!=this.white) {
 							moves.add(move);
 						} else if (bo.ghost!=null) {
-							if (bo.ghost.equals(move)) {
+							if (bo.ghost.equals(move)&&bo.ghostPawn.white!=this.white) {
 								moves.add(move);
 							}
 						}

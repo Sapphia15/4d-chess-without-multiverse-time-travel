@@ -27,7 +27,7 @@ public class Mapper extends Screen {
 	final int midX=sWidth/2;
 	final int midY=sHeight/2;
 	final int maxTranslate=612;
-	boolean letterDisplay=true;	
+	boolean letterDisplay=false;	
 	int drawSceneWidth=sWidth;
 	int drawSceneX=0;
 	final double ratio=((double)sWidth)/sHeight;
