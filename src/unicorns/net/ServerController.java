@@ -35,13 +35,13 @@ public class ServerController extends Controller{
 					Server.games.remove(game);
 					Console.s.println("Game removed:\n  Code: "+game.getCode());
 				}
-				game=Server.createGame(this, (boolean) r.get("white"),(long)r.get("clocks"));
+				game=Server.createGame(this, (boolean) r.get("white"),(long)r.get("clocks"),(long)r.get("delay"),(long)r.get("bonus"));
 				Request codeReq=new Request("post","code");
 				codeReq.set("code", game.getCode());
 				queueProcessRequest(codeReq);
 				Console.s.println((boolean)r.get("white"));
 				Console.s.println((long) r.get("clocks"));
-				Console.s.println("Game created by client:\n     Code: "+game.getCode()+"\n     ID: "+clientID+"\n     White: "+(boolean) r.get("white")+"\n     Clocks: "+((long) r.get("clocks")>0));
+				Console.s.println("Game created by client:\n     Code: "+game.getCode()+"\n     ID: "+clientID+"\n     White: "+(boolean) r.get("white")+"\n     Clocks: "+((long) r.get("clocks")));
 			break;
 			case "code":
 				try {
@@ -53,7 +53,9 @@ public class ServerController extends Controller{
 						gameReq.set("success", true);
 						boolean white=game.getPlayerID(true)==clientID;
 						gameReq.set("white", white);
-						gameReq.set("clocks", game.getWhiteTime());
+						gameReq.set("clocks", game.getClockTime());
+						gameReq.set("delay", game.getDelay());
+						gameReq.set("bonus", game.getBonus());
 						if (white) {
 							partner=game.getBlack();
 						} else {

@@ -69,7 +69,11 @@ public class ClientController extends Controller {
 					observer.getGame().setOppColor(!(boolean)r.get("white"));
 					this.white=(boolean)r.get("white");
 					observer.setClocks(((long)r.get("clocks"))>0);
+					observer.setClockTime((long)r.get("clocks"));
+					observer.setDelay((long)r.get("delay"));
+					observer.setBonus((long)r.get("bonus"));
 					observer.setScreen("game");
+					
 				} else {
 					Main.err.println("Failed to join game.");
 				}
@@ -108,11 +112,13 @@ public class ClientController extends Controller {
 		queueProcessRequest(cReq);
 	}
 	
-	public void createGame(boolean white,long clocks) {
+	public void createGame(boolean white,long clocks,long delay,long bonus) {
 		this.white=white;
 		Request cReq=new Request("post","create");
 		cReq.set("white",white);
 		cReq.set("clocks",clocks);
+		cReq.set("delay", delay);
+		cReq.set("bonus", bonus);
 		queueProcessRequest(cReq);
 	}
 	public void exitGame() {

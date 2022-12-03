@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -12,7 +15,9 @@ import java.net.Socket;
 import java.util.Hashtable;
 
 import gameutil.text.Console;
+import gameutil.text.Iru.Letter;
 import graphics.screen.Screen;
+import unicorns.Assets;
 import unicorns.Main;
 import unicorns.Panel;
 import unicorns.Piece;
@@ -33,6 +38,13 @@ public class Online extends Screen {
 	Rectangle create;
 	Rectangle clocks;
 	Rectangle color;
+	Rectangle lessTime;
+	Rectangle moreTime;
+	Rectangle lessDelay;
+	Rectangle moreDelay;
+	Rectangle lessBonus;
+	Rectangle moreBonus;
+	Rectangle copy;
 	static enum COLOR {white,black,rand};
 	COLOR col=COLOR.rand;
 	
@@ -69,6 +81,14 @@ public class Online extends Screen {
 		create=new Rectangle(0,0,0,0);
 		clocks=new Rectangle(0,0,0,0);
 		color=new Rectangle(0,0,0,0);
+		copy=new Rectangle(0,0,0,0);
+		
+		lessTime=new Rectangle(100,Assets.BUTTON_HEIGHT*3+20,16,16);
+		moreTime=new Rectangle(226,Assets.BUTTON_HEIGHT*3+20,16,16);
+		lessDelay=new Rectangle(100,Assets.BUTTON_HEIGHT*3+20+16*2,16,16);
+		moreDelay=new Rectangle(226,Assets.BUTTON_HEIGHT*3+20+16*2,16,16);
+		lessBonus=new Rectangle(100,Assets.BUTTON_HEIGHT*3+20+16*4,16,16);
+		moreBonus=new Rectangle(226,Assets.BUTTON_HEIGHT*3+20+16*4,16,16);
 	}
 	
 	@Override
@@ -107,26 +127,62 @@ public class Online extends Screen {
 		}
 		
 		if(observer.clocks()) {
-			g.setColor(Color.green);
+			g.drawImage(Assets.CLOCKS_ON_BUTTON,(int) clocks.x,(int)clocks.y,clocks.width,clocks.height,null);
+			//g.setColor(Color.green);
 		} else {
-			g.setColor(Color.red);
+			g.drawImage(Assets.CLOCKS_OFF_BUTTON,(int) clocks.x,(int)clocks.y,clocks.width,clocks.height,null);
+			//g.setColor(Color.red);
 		}
-		g.fillRoundRect(clocks.x, clocks.y, clocks.width, clocks.height,20,20);
+		//g.fillRoundRect(clocks.x, clocks.y, clocks.width, clocks.height,20,20);
 		
 		g.setColor(col2);
 		
-		g.fillRoundRect(menu.x, menu.y, menu.width, menu.height,20,20);
+		g.drawImage(Letter.LESS.img16(),lessTime.x,lessTime.y,null);
+		g.drawImage(Letter.LESS.img16(),lessDelay.x,lessDelay.y,null);
+		g.drawImage(Letter.LESS.img16(),lessBonus.x,lessBonus.y,null);
+		
+		g.drawImage(Letter.MORE.img16(),moreTime.x,moreTime.y,null);
+		g.drawImage(Letter.MORE.img16(),moreDelay.x,moreDelay.y,null);
+		g.drawImage(Letter.MORE.img16(),moreBonus.x,moreBonus.y,null);
+		
+		Font newFont = g.getFont().deriveFont((16f));
+		g.setFont(newFont);
+		String clockTime=String.format("%01d", (int)Math.floor(observer.getClockTime()/60000))+":"+String.format("%01d",(int)Math.floor(observer.getClockTime()/1000)%60);
+		int width=(int)(g.getFontMetrics().getStringBounds(clockTime, g).getWidth()/2);
+		g.drawString(clockTime, lessTime.x+65-width, lessTime.y+15);
+		String delayTime=String.format("%01d",(int)Math.floor(observer.getDelay()/1000));
+		width=(int)(g.getFontMetrics().getStringBounds(delayTime, g).getWidth()/2);
+		g.drawString(delayTime, lessDelay.x+65-width, lessDelay.y+15);
+		String bonusTime=String.format("%01d",(int)Math.floor(observer.getBonus()/1000));
+		width=(int)(g.getFontMetrics().getStringBounds(bonusTime, g).getWidth()/2);
+		g.drawString(bonusTime, lessBonus.x+65-width, lessBonus.y+15);
+		
+		g.drawString("Clock Time", lessTime.x-100, lessTime.y+15);
+		
+		g.drawString("Delay (s)", lessDelay.x-100, lessDelay.y+15);
+	
+		g.drawString("Bonus (s)", lessBonus.x-100, lessBonus.y+15);
+		
+		/*g.fillRoundRect(menu.x, menu.y, menu.width, menu.height,20,20);
 		g.fillRoundRect(join.x, join.y, join.width, join.height,20,20);
 		g.fillRoundRect(create.x, create.y, create.width, create.height,20,20);
 		g.fillRoundRect(color.x, color.y, color.width, color.height,20,20);
+		*/
+		g.drawImage(Assets.MENU,menu.x, menu.y, menu.width, menu.height,null);
+		g.drawImage(Assets.JOIN_BUTTON,join.x, join.y, join.width, join.height,null);
+		g.drawImage(Assets.CREATE_BUTTON,create.x, create.y, create.width, create.height,null);
+		if (generated) {
+			g.drawImage(Assets.COPY_BUTTON, copy.x,copy.y,copy.width,copy.height, null);
+		}
+		g.fillRoundRect(color.x, color.y, color.width, color.height,20,20);
 		g.setColor(col1);
 		g.fillRoundRect(color.x+3, color.y+3, color.width-6, color.height-6,20,20);
-		Font newFont = g.getFont().deriveFont((float)25);
+		newFont= g.getFont().deriveFont((float)25);
 		g.setFont(newFont);
-		g.drawString("Menu",(int) menu.getCenterX()-(int)g.getFontMetrics().getStringBounds("Menu", g).getWidth()/2,(int)menu.getCenterY()+(int)g.getFontMetrics().getStringBounds("Menu", g).getHeight()/4);
-		g.drawString("Join",(int) join.getCenterX()-(int)g.getFontMetrics().getStringBounds("Join", g).getWidth()/2,(int)join.getCenterY()+(int)g.getFontMetrics().getStringBounds("Join", g).getHeight()/4);
-		g.drawString("Create",(int) create.getCenterX()-(int)g.getFontMetrics().getStringBounds("Create", g).getWidth()/2,(int)create.getCenterY()+(int)g.getFontMetrics().getStringBounds("Create", g).getHeight()/4);
-		g.drawString("Clocks",(int) clocks.getCenterX()-(int)g.getFontMetrics().getStringBounds("Clocks", g).getWidth()/2,(int)clocks.getCenterY()+(int)g.getFontMetrics().getStringBounds("Clocks", g).getHeight()/4);
+		//g.drawString("Menu",(int) menu.getCenterX()-(int)g.getFontMetrics().getStringBounds("Menu", g).getWidth()/2,(int)menu.getCenterY()+(int)g.getFontMetrics().getStringBounds("Menu", g).getHeight()/4);
+		//g.drawString("Join",(int) join.getCenterX()-(int)g.getFontMetrics().getStringBounds("Join", g).getWidth()/2,(int)join.getCenterY()+(int)g.getFontMetrics().getStringBounds("Join", g).getHeight()/4);
+		//g.drawString("Create",(int) create.getCenterX()-(int)g.getFontMetrics().getStringBounds("Create", g).getWidth()/2,(int)create.getCenterY()+(int)g.getFontMetrics().getStringBounds("Create", g).getHeight()/4);
+		//g.drawString("Clocks",(int) clocks.getCenterX()-(int)g.getFontMetrics().getStringBounds("Clocks", g).getWidth()/2,(int)clocks.getCenterY()+(int)g.getFontMetrics().getStringBounds("Clocks", g).getHeight()/4);
 		
 	}
 	
@@ -139,11 +195,27 @@ public class Online extends Screen {
 			int midY=oldHeight/2;
 			selectables=new Rectangle(midX-270,midY+80,540,190);
 			codeRect=new Rectangle(midX-170,midY-20,340,140);
-			menu=new Rectangle(5,5,200,100);
-			join=new Rectangle(midX-300,midY-170,200,100);
-			create=new Rectangle(midX+100,midY-170,200,100);
-			clocks=new Rectangle(215,5,100,50);
-			color=new Rectangle(325,5,100,100);
+			copy=new Rectangle(midX-170,midY-40-Assets.BUTTON_HEIGHT,Assets.BUTTON_WIDTH,Assets.BUTTON_HEIGHT);
+			menu=new Rectangle(20,20,Assets.MENU.getWidth(null),Assets.MENU.getHeight(null));
+			join=new Rectangle(midX-300,midY-170,Assets.BUTTON_WIDTH,Assets.BUTTON_HEIGHT);
+			create=new Rectangle(midX+100,midY-170,Assets.BUTTON_WIDTH,Assets.BUTTON_HEIGHT);
+			clocks=new Rectangle(155,20,Assets.BUTTON_WIDTH,Assets.BUTTON_HEIGHT);
+			color=new Rectangle(325,20,100,100);
+			/*
+			lessTime=new Rectangle(100,Assets.BUTTON_HEIGHT+join.y+10,16,16);
+			moreTime=new Rectangle(226,Assets.BUTTON_HEIGHT+join.y+10,16,16);
+			lessDelay=new Rectangle(100,Assets.BUTTON_HEIGHT+join.y+10+16*2,16,16);
+			moreDelay=new Rectangle(226,Assets.BUTTON_HEIGHT+join.y+10+16*2,16,16);
+			lessBonus=new Rectangle(100,Assets.BUTTON_HEIGHT+join.y+10+16*4,16,16);
+			moreBonus=new Rectangle(226,Assets.BUTTON_HEIGHT+join.y+10+16*4,16,16);*/
+			
+			
+			lessTime=new Rectangle(535,20,16,16);
+			moreTime=new Rectangle(661,20,16,16);
+			lessDelay=new Rectangle(535,20+16*2,16,16);
+			moreDelay=new Rectangle(661,20+16*2,16,16);
+			lessBonus=new Rectangle(535,20+16*4,16,16);
+			moreBonus=new Rectangle(661,20+16*4,16,16);
 		}
 	}
 	
@@ -185,16 +257,54 @@ public class Online extends Screen {
 			}
 			long clocks=0;
 			if (observer.clocks()) {
-				clocks=60000*20;
+				clocks=observer.getClockTime();
 			}
 			Main.err.println("Clocks: "+clocks);
 			Main.err.println("White: "+ white);
 			observer.createGame(white, clocks);
+		} else if (generated){
+			if (copy.contains(e.getPoint())) {
+				copyDiscordCode();
+			}
 		} else if (clocks.contains(e.getPoint())) {
 			observer.setClocks(!observer.clocks());
 		} else if (join.contains(e.getPoint())) {
 			//attempt to join a game with the current code
 			observer.join(code);
+		} else if (lessTime.contains(e.getPoint())) {
+			int change=60000;
+			if (e.isShiftDown()) {
+				change=1000;
+			}
+			if (observer.getClockTime()>change) {
+				observer.setClockTime(observer.getClockTime()-change);
+			}
+		} else if (moreTime.contains(e.getPoint())) {
+			int change=60000;
+			if (e.isShiftDown()) {
+				change=1000;
+			}
+			observer.setClockTime(observer.getClockTime()+change);
+		} else if (lessDelay.contains(e.getPoint())) {
+			if (observer.getDelay()>999) {
+				observer.setDelay(observer.getDelay()-1000);
+			} else {
+				observer.setDelay(0);
+			}
+		} else if (moreDelay.contains(e.getPoint())) {
+			if (observer.getDelay()<60000) {
+				observer.setDelay(observer.getDelay()+1000);
+			}
+		} else if (lessBonus.contains(e.getPoint())) {
+			if (observer.getBonus()>999) {
+				observer.setBonus(observer.getBonus()-1000);
+			} else {
+				observer.setBonus(0);
+			}
+		} else if (moreBonus.contains(e.getPoint())) {
+			if (observer.getBonus()<60000) {
+				observer.setBonus(observer.getBonus()+1000);
+			}
 		}
 	}
 	
@@ -215,6 +325,20 @@ public class Online extends Screen {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	public String getDiscordCode() {
+		char[] chars=new char[code.length()];
+		code.getChars(0, code.length(), chars, 0);
+		String discordCode="";
+		for (char c:chars) {
+			discordCode+=Piece.getEmoji(c);
+		}
+		return discordCode;
+	}
+	
+	public void copyDiscordCode() {
+		Clipboard clipboard=Toolkit.getDefaultToolkit().getSystemClipboard();
+		clipboard.setContents(new StringSelection(getDiscordCode()), null);
+	}
 	
 }

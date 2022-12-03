@@ -1,5 +1,10 @@
 package unicorns;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+
+import gameutil.text.Console;
 import unicorns.net.ServerController;
 
 public class OnlineGame {
@@ -14,8 +19,10 @@ public class OnlineGame {
 	boolean started=false;
 	boolean whiteTurn=true;
 	long clocks=-1;
+	long delay=0;
+	long bonus=3000;
 	
-	public OnlineGame(ServerController s,boolean white,String code,long clocks) {
+	public OnlineGame(ServerController s,boolean white,String code,long clocks,long delay,long bonus) {
 		if (white) {
 			whiteID=s.getClientID();
 			blackID=-1;
@@ -26,7 +33,10 @@ public class OnlineGame {
 			black=s;
 		}
 		this.code=code;
+		
 		this.clocks=clocks;
+		this.delay=delay;
+		this.bonus=bonus;
 		whiteTime=clocks;
 		blackTime=clocks;
 	}
@@ -70,6 +80,18 @@ public class OnlineGame {
 	
 	public long getBlackTime() {
 		return blackTime;
+	}
+	
+	public long getClockTime() {
+		return clocks;
+	}
+	
+	public long getDelay() {
+		return delay;
+	}
+	
+	public long getBonus() {
+		return bonus;
 	}
 	
 	public ServerController getWhite() {

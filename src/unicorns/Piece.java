@@ -429,4 +429,73 @@ public class Piece {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public static String getEmoji(char c) {
+		String name="";
+		switch (c) {
+			case 'p':
+				name="PawnB";
+			break;
+			case 'r':
+				name="RookB";
+			break;
+			case 'b':
+				name="BishopB";
+			break;
+			case 'u':
+				name="UnicornB";
+			break;
+			case 'd':
+				name="DragonB";
+			break;
+			case 'q':
+				name="QueenB";
+			break;
+			case 'k':
+				name="KingB";
+			break;
+			case 'n':
+				name="KnightB";
+			break;
+			case 'P':
+				name="PawnW";
+			break;
+			case 'R':
+				name="RookW";
+			break;
+			case 'B':
+				name="BishopW";
+			break;
+			case 'U':
+				name="UnicornW";
+			break;
+			case 'D':
+				name="DragonW";
+			break;
+			case 'Q':
+				name="QueenW";
+			break;
+			case 'K':
+				name="KingW";
+			break;
+			case 'N':
+				name="KnightW";
+			break;
+			case 'g':
+				name="GhostB";
+			break;
+			case 'G':
+				name="GhostW";
+			break;
+			case 'C':
+				name="Crystal";
+			break;
+			case 'c':
+				name="Crystal";
+			break;
+		
+		}
+		return ":"+name+":";
+		
+	}
 }

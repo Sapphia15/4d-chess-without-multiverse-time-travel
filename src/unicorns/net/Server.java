@@ -48,8 +48,8 @@ public class Server extends net.Server{
 		}
 	}
 	
-	public static OnlineGame createGame(ServerController s,boolean white,long clocks) {
-		OnlineGame game=new OnlineGame(s,white,generateCode(),clocks);
+	public static OnlineGame createGame(ServerController s,boolean white,long clocks,long delay,long bonus) {
+		OnlineGame game=new OnlineGame(s,white,generateCode(),clocks,delay,bonus);
 		games.add(game);
 		return game;
 	}

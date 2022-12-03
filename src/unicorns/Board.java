@@ -22,7 +22,7 @@ public class Board {
 	Piece ghostPawn=null;
 	char lastPieceMoved='x';
 	char lastPieceTaken='x';
-	
+	int[] piecesTaken=new int[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0};//P R B U D Q N
 	
 	/**Creates an empty board
 	 * 
@@ -229,6 +229,119 @@ public class Board {
 		return str;
 	}
 	
+	public Point notationToPoint(String notation) {
+		double[] d=new double[4];
+		switch (notation.charAt(0)){
+			case 'a':
+				d[0]=0;
+			break;
+			case 'b':
+				d[0]=1;
+			break;
+			case 'c':
+				d[0]=2;
+			break;
+			case 'd':
+				d[0]=3;
+			break;
+		}
+		d[1]=Integer.parseInt(String.valueOf(notation.charAt(1)))-1;
+		switch (notation.charAt(2)){
+			case 'α':
+				d[2]=0;
+			break;
+			case 'β':
+				d[2]=1;
+			break;
+			case 'γ':
+				d[2]=2;
+			break;
+			case 'δ':
+				d[2]=3;
+			break;
+		}
+		d[3]=Integer.parseInt(String.valueOf(notation.charAt(3)))-1;
+		//Console.s.println("("+d[0]+","+d[1]+","+d[2]+","+d[3]+")");
+		return new Point(d);
+	}
+	
+	public Move notationToMove(String notation,boolean white) {
+		
+		char q = 'q';
+		if (white) {
+			q='Q';
+		}
+		if (notation.startsWith(" ")) {
+			notation=notation.substring(1);
+		}
+		if (notation.endsWith(" ")) {
+			notation=notation.substring(0,notation.length()-1);
+		}
+		//String unote=notation.toUpperCase();
+		if (notation.startsWith("N")||notation.startsWith("P")||notation.startsWith("D")||notation.startsWith("U")||notation.startsWith("B")||notation.startsWith("Q")||notation.startsWith("K")||notation.startsWith("R")) {
+			notation=notation.substring(1);//remove piece type prefix
+		}
+		
+		
+		String[] squares=notation.split(" ");
+		if (squares.length==3) {
+			if (squares[1].startsWith("(")) {
+				//remove parenthesis for intermediate pawn moves
+				squares[1]=squares[1].substring(1, squares[1].length()-1);
+			}
+		}
+		Point[] points=new Point[squares.length];
+		for (int i=0;i<squares.length;i++) {
+			String square=squares[i];
+			
+			if (square.startsWith("x")) {
+				square=square.substring(1);//remove any xs that mark a capture
+			}
+			String usquare=square.toUpperCase();
+			if (usquare.endsWith("N")||usquare.endsWith("P")||usquare.endsWith("D")||usquare.endsWith("U")||usquare.endsWith("B")||usquare.endsWith("Q")||usquare.endsWith("K")||usquare.endsWith("R")) {
+				q=square.charAt(square.length()-1);//set the promotion character
+				square=square.substring(0,square.length()-1);//remove piece promotion type
+			}
+			if (square.endsWith("\n")) {
+				square=square.substring(0,square.length()-1);
+			}
+			if (square.endsWith("\r")) {
+				square=square.substring(0,square.length()-1);
+			}
+			//Console.s.println(square);
+			//convert the individual notation coords to to points that can used to make a move
+			points[i]=notationToPoint(square);
+		}
+		if (points.length>2) {
+			//rearange order of squares so that they work properly in the make move function
+			Point intermed=points[1];
+			Point end=points[2];
+			points[1]=end;
+			points[2]=intermed;
+		}
+			
+		Move move=new Move(points,q);
+		return move;
+	}
+	
+	public Move[] notationToMoves(String notation) {
+		String[] lines=notation.split("\n");
+		ArrayList<Move> moves=new ArrayList<>();
+		boolean white=true;
+		for (String line:lines) {
+			//Console.s.println(line);
+			if (!line.startsWith("[")) {
+				String[] smoves=line.split("/");
+				for (String smove:smoves) {
+					moves.add(notationToMove(smove,white));
+					white=!white;
+				}
+			}
+		}
+		Move[] moveArray=new Move[moves.size()];
+		return moves.toArray(moveArray);
+	}
+	
 	public void selectPiece(Piece p) {
 		selected=p;
 		this.legalMoves=p.getPotentialMoves(p.type,this);
@@ -311,6 +424,7 @@ public class Board {
 		if (b.lastState!=null) {
 			this.lastState=b.lastState.clone();
 		}
+		this.piecesTaken=b.piecesTaken;
 	}
 	
 	public Board clone() {
@@ -337,7 +451,7 @@ public class Board {
 		if(lastState!=null) {
 			cloneBoard.lastState=lastState.clone();
 		}
-		
+		cloneBoard.piecesTaken=this.piecesTaken.clone();
 		return cloneBoard;
 	}
 	
@@ -571,6 +685,7 @@ public class Board {
 					pieces.add(newPiece);
 				} 
 				lastPieceTaken=x.getType();
+				updateCaptures(lastPieceTaken);
 				return true;
 			} else {
 				deselectPiece();
@@ -618,6 +733,63 @@ public class Board {
 		}
 	}
 	
+	public void updateCaptures(char lastPieceTaken) {
+		int index=0;
+		switch(lastPieceTaken) {
+		case 'p':
+			index=7;
+		break;
+		case 'r':
+			index=8;
+		break;
+		case 'b':
+			index=9;
+		break;
+		case 'u':
+			index=10;
+		break;
+		case 'd':
+			index=11;
+		break;
+		case 'q':
+			index=12;
+		break;
+		case 'n':
+			index=13;
+		break;
+		case 'P':
+			index=0;
+		break;
+		case 'R':
+			index=1;
+		break;
+		case 'B':
+			index=2;
+		break;
+		case 'U':
+			index=3;
+		break;
+		case 'D':
+			index=4;
+		break;
+		case 'Q':
+			index=5;
+		break;
+		case 'N':
+			index=6;
+		break;
+		case 'g':
+			index=7;
+		break;
+		case 'G':
+			index=0;
+		break;
+		}
+		//update material record
+		piecesTaken[index]++;
+		
+	}
+
 	public boolean makeMove(Point start,Point end, Point intermed) {
 		char q = 'q';
 		if (pieceAt(start).white) {
@@ -647,7 +819,17 @@ public class Board {
 		return makeMove(move,q);
 	}
 	
+	public boolean makeMove(Move m) {
+		return makeMove(m.getPoints(),m.getPromotion());
+	}
+	
 	public char lastPieceTaken() {
 		return lastPieceTaken;
 	}
+	
+	public int[] getCapturedPieces() {
+		return piecesTaken;
+	}
+	
+	
 }

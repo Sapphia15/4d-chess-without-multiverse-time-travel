@@ -10,6 +10,14 @@ import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +36,7 @@ import graphics.screen.Screen;
 import unicorns.Assets;
 import unicorns.Board;
 import unicorns.Main;
+import unicorns.Move;
 import unicorns.Panel;
 import unicorns.Piece;
 import unicorns.Sounds;
@@ -58,6 +67,7 @@ public class Game extends Screen{
 	boolean sounds=true;
 	boolean highlightMoves=true;
 	boolean drawChecks=true;
+	boolean showCaptures=true;
 	int lastButtonPressed=0;
 	Point[] checkingMove=null;
 	
@@ -73,10 +83,18 @@ public class Game extends Screen{
 	boolean invertMetaYW=false;
 	boolean online=false;
 	boolean showIngameMenu=false;
+	long lastMoveChange=System.currentTimeMillis();
 	long whiteTime=60000*20;
 	long blackTime=60000*20;//20 minutes
+	long whiteDelay=0;
+	long blackDelay=0;
 	long timeIndex=0;
+	int move=0;
+	long bonus=3000;
+	long delay=0;
+	Move[] analyzeMoves;
 	AI theAi=new CaptureAI();
+	String gameLog="";
 	//TODO need to add clocks!
 	
 	
@@ -134,13 +152,22 @@ public class Game extends Screen{
 		g.setFont(newFont);
 		if (clocks) {
 			g.setColor(Color.white);
-			g.fillRoundRect(5, 5, g.getFontMetrics().stringWidth(" White: 20:00  "), (int)Math.floor(sq*3.2),20,20);
+			g.fillRoundRect(5, 5, g.getFontMetrics().stringWidth(" White: 20:00 +10  "), (int)Math.floor(sq*3.2),20,20);
 			g.setColor(Color.black);
-			g.drawString("White "+String.format("%01d", (int)Math.floor(whiteTime/60000))+":"+String.format("%01d",(int)Math.floor(whiteTime/1000)%60), 10, sq*2);
-			g.drawString("Black "+String.format("%01d",(int)Math.floor(blackTime/60000))+":"+String.format("%01d",(int)Math.floor(blackTime/1000)%60), 10, sq*3);
+			String whiteDelay=" +"+String.format("%01d", (int)Math.floor(this.whiteDelay/1000));
+			String blackDelay=" +"+String.format("%01d", (int)Math.floor(this.blackDelay/1000));
+			if (this.whiteDelay==0) {
+				whiteDelay="";
+			}
+			if (this.blackDelay==0) {
+				blackDelay="";
+			}
+			
+			g.drawString("White "+String.format("%01d", (int)Math.floor(whiteTime/60000))+":"+String.format("%01d",(int)Math.floor(whiteTime/1000)%60)+whiteDelay, 10, sq*2);
+			g.drawString("Black "+String.format("%01d",(int)Math.floor(blackTime/60000))+":"+String.format("%01d",(int)Math.floor(blackTime/1000)%60)+blackDelay, 10, sq*3);
 		} else {
 			g.setColor(Color.white);
-			g.fillRoundRect(5, 5, g.getFontMetrics().stringWidth(" White: 20:00  "), (int)Math.floor(sq*1.2),20,20);
+			g.fillRoundRect(5, 5, g.getFontMetrics().stringWidth(" White: 20:00 +10  "), (int)Math.floor(sq*1.2),20,20);
 			g.setColor(Color.black);
 		}
 		g.drawString(space,10,sq);
@@ -449,6 +476,41 @@ public class Game extends Screen{
 			}
 		}
 		
+		if (showCaptures) {
+			//draw material
+			int[] captures=b.getCapturedPieces();
+			g.drawImage(Assets.ROOK_W, 10, sq*4,sq,sq, null);
+			g.drawImage(Assets.BISHOP_W, 10+2*sq, sq*4,sq,sq, null);
+			g.drawImage(Assets.UNICORN_W, 10+4*sq, sq*4,sq,sq, null);
+			g.drawImage(Assets.DRAGON_W, 10+6*sq, sq*4,sq,sq, null);
+			g.drawImage(Assets.PAWN_W, 10, sq*6,sq,sq, null);
+			g.drawImage(Assets.QUEEN_W, 10+2*sq, sq*6,sq,sq, null);
+			g.drawImage(Assets.KNIGHT_W, 10+4*sq, sq*6,sq,sq, null);
+			g.setColor(new Color(255,255,150));
+			g.drawString(""+captures[1], 10, sq*6-5);
+			g.drawString(""+captures[2], 10+2*sq, sq*6-5);
+			g.drawString(""+captures[3], 10+4*sq, sq*6-5);
+			g.drawString(""+captures[4], 10+6*sq, sq*6-5);
+			g.drawString(""+captures[0], 10, sq*8-5);
+			g.drawString(""+captures[5], 10+2*sq, sq*8-5);
+			g.drawString(""+captures[6], 10+4*sq, sq*8-5);
+			
+			g.drawImage(Assets.ROOK_B, 10, sq*10,sq,sq, null);
+			g.drawImage(Assets.BISHOP_B, 10+2*sq, sq*10,sq,sq, null);
+			g.drawImage(Assets.UNICORN_B, 10+4*sq, sq*10,sq,sq, null);
+			g.drawImage(Assets.DRAGON_B, 10+6*sq, sq*10,sq,sq, null);
+			g.drawImage(Assets.PAWN_B, 10, sq*12,sq,sq, null);
+			g.drawImage(Assets.QUEEN_B, 10+2*sq, sq*12,sq,sq, null);
+			g.drawImage(Assets.KNIGHT_B, 10+4*sq, sq*12,sq,sq, null);
+			
+			g.drawString(""+captures[8], 10, sq*12-5);
+			g.drawString(""+captures[9], 10+2*sq, sq*12-5);
+			g.drawString(""+captures[10], 10+4*sq, sq*12-5);
+			g.drawString(""+captures[11], 10+6*sq, sq*12-5);
+			g.drawString(""+captures[7], 10, sq*14-5);
+			g.drawString(""+captures[12], 10+2*sq, sq*14-5);
+			g.drawString(""+captures[13], 10+4*sq, sq*14-5);
+		}
 		//if (bez!=null) {
 		for (BezierCurve bez:bezties) {
 			try {
@@ -537,14 +599,48 @@ public class Game extends Screen{
 		}
 		
 		if (showIngameMenu) {
+			g.setColor(Color.BLACK);
+			g.fillRoundRect(menu.x-5, menu.y-5, menu.width+10, menu.height+10, 20, 20);
 			g.setColor(Color.DARK_GRAY);
 			g.fillRoundRect(menu.x, menu.y, menu.width, menu.height, 20, 20);
 			g.setColor(Color.pink);
 			g.drawString("Exit", exit.x, exit.y+g.getFontMetrics().getHeight());
 			exit.setBounds(exit.x, exit.y, g.getFontMetrics().stringWidth("Exit"),g.getFontMetrics().getHeight());
-			int hotkeyWidth=(int) (num/3.84);
-			g.drawImage(Assets.HOTKEYS, (int)menu.getCenterX()-hotkeyWidth/2, exit.y+g.getFontMetrics().getHeight()*2, hotkeyWidth, hotkeyWidth, null);
-			
+			int exitHeight=g.getFontMetrics().getHeight();
+			if (gap==8) {
+				exitHeight/=2;
+			}
+			//int hotkeyWidth=(int) (num/3.84);
+			//g.drawImage(Assets.HOTKEYS, (int)menu.getCenterX()-hotkeyWidth/2, exit.y+g.getFontMetrics().getHeight()*2, hotkeyWidth, hotkeyWidth, null);
+			g.setColor(new Color(255,255,150));
+			int hotkeyHeight=exitHeight*3/2;
+			if(gap>8) {
+				g.setFont(g.getFont().deriveFont(gap+12f));
+			} else {
+				hotkeyHeight=exitHeight*2;
+				g.setFont(g.getFont().deriveFont(gap+4f));
+			}
+			g.drawString( "Hotkeys and Controls:",exit.x, exit.y+hotkeyHeight+g.getFontMetrics().getHeight());
+			g.setFont(g.getFont().deriveFont(gap+4f));
+			g.drawString( "F - submit",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*2);
+			g.drawString( "Z - undo",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*3);
+			g.drawString( "S - toggle sound effects",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*4);
+			g.drawString( "M - toggle music",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*5);
+			g.drawString( "P - flip perspective",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*6);
+			g.drawString( "I - swap x and z perspective",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*7);
+			g.drawString( "K - swap y and w perspective",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*8);
+			g.drawString( "O - open game (only in analyze mode)",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*9);
+			g.drawString( "Ctrl + S - save game (only out of analyze mode) *saving when a game is over will open analysis mode and go back to the first turn",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*10);
+			g.drawString( "C - toggle show checks",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*11);
+			g.drawString( "B - board style",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*12);
+			g.drawString( "A/D - move forward/backward a turn (only in analyze mode)",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*13);
+			g.drawString( "Q - toggle show captures",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*14);
+			g.drawString( "H - toggle highlighting of valid moves of the selected piece",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*15);
+			g.drawString( "\\ - open Command Line 4D *click the Command Line 4D window, type help, and then press enter to see a list of commands",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*16);
+			g.drawString( "Left click - select a piece or move selected piece to the clicked squares",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*17);
+			g.drawString( "*note, to move a pawn two spaces on its first turn you must move it twice before submitting your move",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*18);
+			g.drawString( "Right click + drag - draw arrows. Right click off of the board to clear them.",exit.x, exit.y+exitHeight*2+g.getFontMetrics().getHeight()*19);
+
 		}
 	}
 
@@ -571,7 +667,7 @@ public class Game extends Screen{
 			int offY=(int)Math.floor(observer.getHeight()/2d)-num/2;
 			rects.clear();
 			board=new Rectangle(offX,offY,num,num);
-			menu=new Rectangle((int)board.getCenterX()-sq4,(int)board.getCenterY()-sq4,sq*8,sq*10);
+			menu=new Rectangle((int)board.getCenterX()-sq4*4,(int)board.getCenterY()-sq4*2,sq*32,sq*16);
 			exit.setLocation(menu.x+10, menu.y+10);
 			//menu buttons and stuff
 			for (int i=0; i<4;i++) {
@@ -639,15 +735,31 @@ public class Game extends Screen{
 			long oldIndex=timeIndex;
 			timeIndex=System.currentTimeMillis();
 			if (whiteTurn) {
-				whiteTime-=timeIndex-oldIndex;
+				if (whiteDelay>0) {
+					whiteDelay-=timeIndex-oldIndex;
+					if (whiteDelay<0) {
+						whiteTime=whiteTime+whiteDelay;//reduce the main time by the amount of time that the delay went over
+						whiteDelay=0;
+					}
+				} else {
+					whiteTime-=timeIndex-oldIndex;
+				}
 				if (whiteTime<=0) {
 					whiteTime=0;
 					state=STATE.blackWins;
 				}
 			} else {
-				blackTime-=timeIndex-oldIndex;
+				if (blackDelay>0) {
+					blackDelay-=timeIndex-oldIndex;
+					if (blackDelay<0) {
+						blackTime=blackTime+blackDelay;//reduce the main time by the amount of time that the delay went over
+						blackDelay=0;
+					}
+				} else {
+					blackTime-=timeIndex-oldIndex;
+				}
 				if (blackTime<=0) {
-					whiteTime=0;
+					blackTime=0;
 					state=STATE.whiteWins;
 				}
 			}
@@ -747,10 +859,13 @@ public class Game extends Screen{
 			} else if (state==STATE.blackWins||state==STATE.whiteWins||state==STATE.draw) {
 				if (state==STATE.blackWins) {
 					Console.s.println("0-1");
+					gameLog="[Result: 0-1]\n"+gameLog;
 				} else if (state==STATE.whiteWins) {
 					Console.s.println("1-0");
+					gameLog="[Result: 1-0]\n"+gameLog;
 				} else {
 					Console.s.println("1/2-1/2");
+					gameLog="[Result: 1/2-1/2]\n"+gameLog;
 				}
 				observer.setScreen("title");
 			}
@@ -760,6 +875,33 @@ public class Game extends Screen{
 			state=STATE.move;
 			b.undo();
 			checkingMove=b.checkingMove(whiteTurn);
+		} else if (e.getKeyCode()==KeyEvent.VK_A&&state==STATE.analyze) {
+			if (move>0&&System.currentTimeMillis()-lastMoveChange>100) {
+				capture="";
+				b.undo();
+				move--;
+				Console.s.println(move+"   ::  "+analyzeMoves.length);
+				checkingMove=b.checkingMove(whiteTurn);
+				lastMoveChange=System.currentTimeMillis();
+			}
+		} else if (e.getKeyCode()==KeyEvent.VK_D&&state==STATE.analyze) {
+			//redo move
+			if (System.currentTimeMillis()-lastMoveChange>100) {
+				if (move<analyzeMoves.length) {
+					capture="";
+					b.makeMove(analyzeMoves[move]);
+					Point[] ps=analyzeMoves[move].getPoints();
+					Console.s.println(Board.pointToNotation(ps[0])+"   "+Board.pointToNotation(ps[1]));
+					Console.s.println(move+"   ::  "+analyzeMoves.length);
+					move++;
+					checkingMove=b.checkingMove(whiteTurn);
+					lastMoveChange=System.currentTimeMillis();
+				} else if (sounds&&System.currentTimeMillis()-lastMoveChange>500) {
+					Console.s.println(move+"   ::  "+analyzeMoves.length);
+					Main.sounds.playSound("endturn.wav", 0);
+					lastMoveChange=System.currentTimeMillis();
+				}
+			}
 		} else if (e.getKeyCode()==KeyEvent.VK_I) {
 			invertMetaXZ=!invertMetaXZ;
 		} else if (e.getKeyCode()==KeyEvent.VK_K) {
@@ -769,7 +911,35 @@ public class Game extends Screen{
 		} else if (e.getKeyCode()==KeyEvent.VK_ESCAPE) {
 			showIngameMenu=!showIngameMenu;
 		} else if (e.getKeyCode()==KeyEvent.VK_S) {
-			sounds=!sounds;
+			if (e.isControlDown()&&state!=STATE.analyze) {
+				if (state==STATE.blackWins||state==STATE.whiteWins||state==STATE.draw) {
+					if (state==STATE.blackWins) {
+						Console.s.println("0-1");
+						gameLog="[Result: 0-1]\n"+gameLog;
+					} else if (state==STATE.whiteWins) {
+						Console.s.println("1-0");
+						gameLog="[Result: 1-0]\n"+gameLog;
+					} else {
+						Console.s.println("1/2-1/2");
+						gameLog="[Result: 1/2-1/2]\n"+gameLog;
+					}
+				}
+				File save=Main.saveFile();
+				try {
+					FileWriter w=new FileWriter(save,StandardCharsets.UTF_8);
+					w.write(gameLog);
+					w.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				if (state==STATE.blackWins||state==STATE.whiteWins||state==STATE.draw) {
+					importGame(save);
+				}
+				
+			} else {
+				sounds=!sounds;
+			}
 		} else if (e.getKeyCode()==KeyEvent.VK_H) {
 			highlightMoves=!highlightMoves;
 		} else if (e.getKeyCode()==KeyEvent.VK_BACK_SLASH) {
@@ -778,6 +948,10 @@ public class Game extends Screen{
 			drawChecks=!drawChecks;
 		} else if (e.getKeyCode()==KeyEvent.VK_M) {
 			observer.toggleMusic();
+		} else if (e.getKeyCode()==KeyEvent.VK_Q) {
+			showCaptures=!showCaptures;
+		} else if (e.getKeyCode()==KeyEvent.VK_O&&state==STATE.analyze) {
+			importGame();
 		}
 	}
 	
@@ -791,12 +965,13 @@ public class Game extends Screen{
 						observer.exitOnlineGame();
 					}
 					observer.setScreen("title");
+					showIngameMenu=false;
 				}
 			} else if (board.contains(e.getPoint())){
 				Point boardPoint=screenToBoard(e.getX(),e.getY());
+				Piece p=b.pieceAt(boardPoint);
 				if (state==STATE.move && !((ai||online)&&whiteTurn==oppColor)) {
 					//Console.s.println("clicked board");
-					Piece p=b.pieceAt(boardPoint);
 					if (p!=null) {
 						if (whiteTurn==p.isWhite()) {
 							b.selectPiece(p);
@@ -807,7 +982,7 @@ public class Game extends Screen{
 							b.move(boardPoint);
 							Piece selectedPiece=b.getSelectedPiece();
 							b.getPieces().remove(p);
-							
+							b.updateCaptures(p.getType());
 							b.deselectPiece();
 							if (String.valueOf(selectedPiece.getType()).toUpperCase().equals("P")&&((boardPoint.tuple.i(1)==3&&boardPoint.tuple.i(3)==3&&whiteTurn)||(boardPoint.tuple.i(1)==0&&boardPoint.tuple.i(3)==0&&!whiteTurn))) {
 								promoteSquare=boardPoint;
@@ -827,7 +1002,7 @@ public class Game extends Screen{
 								Piece ghostPawn=b.getGhostPiece();
 								b.move(boardPoint);
 								b.getPieces().remove(ghostPawn);
-								
+								b.updateCaptures(ghostPawn.getType());
 								
 								b.deselectPiece();
 								state=STATE.detect;
@@ -864,6 +1039,10 @@ public class Game extends Screen{
 						b.secondPawnMove(boardPoint);
 						b.deselectPiece();
 						state=STATE.detect;
+					}
+				} else if (state==STATE.analyze) {
+					if (p!=null) {
+						b.selectPiece(p);
 					}
 				}
 			} else if (state==STATE.promote) {
@@ -930,15 +1109,16 @@ public class Game extends Screen{
 	}
 
 	public void recNotation() {
+		String toLog="";
 		if (whiteTurn) {
 			if (b.getGhost()==null) {
 				String pieceLetter=String.valueOf(b.lastPieceTypeMoved()).toUpperCase();
 				if (pieceLetter.equals("P")) {
 					pieceLetter="";
 				}
-				Console.s.print(pieceLetter+Board.pointToNotation(b.lastMoveStart())+" "+capture+Board.pointToNotation(b.lastMoveEnd())+promotePiece+" / ");
+				toLog=pieceLetter+Board.pointToNotation(b.lastMoveStart())+" "+capture+Board.pointToNotation(b.lastMoveEnd())+promotePiece+" / ";
 			} else {
-				Console.s.print(Board.pointToNotation(b.lastMoveStart())+" ("+Board.pointToNotation(b.getGhost())+") "+Board.pointToNotation(b.lastMoveEnd())+promotePiece+" / ");
+				toLog=Board.pointToNotation(b.lastMoveStart())+" ("+Board.pointToNotation(b.getGhost())+") "+Board.pointToNotation(b.lastMoveEnd())+promotePiece+" / ";
 			}
 		} else {
 			if (b.getGhost()==null) {
@@ -946,25 +1126,33 @@ public class Game extends Screen{
 				if (pieceLetter.equals("P")) {
 					pieceLetter="";
 				}
-				Console.s.println(pieceLetter+Board.pointToNotation(b.lastMoveStart())+" "+capture+Board.pointToNotation(b.lastMoveEnd())+promotePiece);
+				toLog=pieceLetter+Board.pointToNotation(b.lastMoveStart())+" "+capture+Board.pointToNotation(b.lastMoveEnd())+promotePiece+"\n";
 			} else {
-				Console.s.println(Board.pointToNotation(b.lastMoveStart())+" ("+Board.pointToNotation(b.getGhost())+") "+Board.pointToNotation(b.lastMoveEnd())+promotePiece);
+				toLog=Board.pointToNotation(b.lastMoveStart())+" ("+Board.pointToNotation(b.getGhost())+") "+Board.pointToNotation(b.lastMoveEnd())+promotePiece+"\n";
 			}
 		}
+		gameLog+=toLog;
+		Console.s.print(toLog);
 		promotePiece="";
 	}
 	
 	public void setInit(){
+		
 		state=STATE.detectMate;
 		checked=false;
 		whiteTurn=true;
 		firstMove=true;
 		this.online=observer.isOnline();
 		b.setUp();
+		gameLog="";
 		//b.experimentSetUp();
 		if (observer.clocks()) {
-			whiteTime=60000*20;
-			blackTime=60000*20;
+			whiteTime=observer.getClockTime();
+			blackTime=observer.getClockTime();
+			bonus=observer.getBonus();
+			delay=observer.getDelay();
+			whiteDelay=delay;
+			blackDelay=delay;
 			clocks=true;
 		} else {
 			clocks=false;
@@ -975,10 +1163,36 @@ public class Game extends Screen{
 			oppColor=(1==Main.rand.nextInt(2));
 			theAi.setColor(oppColor);
 			wPersp=!oppColor;
+			if (oppColor) {
+				gameLog+="[White : AI]\n"
+						+ "[Black : You]\n";
+				Console.s.println("[White : AI]");
+				Console.s.println("[Black : You]");
+			} else {
+				gameLog+="[White : You]\n"
+						+ "[Black : AI]\n";
+				Console.s.println("[White : You]");
+				Console.s.println("[Black : AI]");
+			}
 		} else if (online){
 			wPersp=!oppColor;
+			if (oppColor) {
+				gameLog+="[White : Opponent]\n"
+						+ "[Black : You]\n";
+				Console.s.println("[White : Opponent]");
+				Console.s.println("[Black : You]");
+			} else {
+				gameLog+="[White : You]\n"
+						+ "[Black : Opponent]\n";
+				Console.s.println("[White : You]");
+				Console.s.println("[Black : Opponent]");
+			}
 		} else {
 			wPersp=true;
+			gameLog+="[White : A Local Human... probably]\n"
+					+ "[Black : Another Local Human... probably]\n";
+			Console.s.println("[White : A Local Human... probably]");
+			Console.s.println("[Black : Another Local Human... probably]");
 		}
 		state=STATE.move;
 	}
@@ -1013,9 +1227,27 @@ public class Game extends Screen{
 			
 			//3 second move increment and update clock last time before turning over to the next player
 			if (whiteTurn) {
-				whiteTime+=3000-(timeIndex-oldIndex);
+				if (whiteDelay>0) {
+					whiteDelay-=timeIndex-oldIndex;
+					if (whiteDelay<0) {
+						whiteTime=whiteTime+whiteDelay;//reduce the main time by the amount of time that the delay went over
+						whiteDelay=0;
+					}
+				} else {
+					whiteTime-=timeIndex-oldIndex;
+				}
+				whiteDelay=delay;
 			} else {
-				blackTime+=3000-(timeIndex-oldIndex);
+				if (blackDelay>0) {
+					blackDelay-=timeIndex-oldIndex;
+					if (blackDelay<0) {
+						blackTime=blackTime+blackDelay;//reduce the main time by the amount of time that the delay went over
+						blackDelay=0;
+					}
+				} else {
+					blackTime-=timeIndex-oldIndex;
+				}
+				blackDelay=delay;
 			}
 			timeIndex=System.currentTimeMillis();
 			
@@ -1132,5 +1364,24 @@ public class Game extends Screen{
 	protected void keyDown(int key) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void importGame(File f) {
+		//file chooser to select a file
+		
+		try {
+			analyzeMoves=b.notationToMoves(Files.readString(f.toPath(),StandardCharsets.UTF_8));
+			move=0;
+			checkingMove=null;
+			capture=null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		state=STATE.analyze;
+	}
+	
+	public void importGame() {
+		importGame(Main.openFile());
 	}
 }

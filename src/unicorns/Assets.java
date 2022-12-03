@@ -38,6 +38,32 @@ public class Assets {
 	public static final Image DRAGON_B=new ImageIcon("assets/DragonB.png").getImage();
 	public static final Image QUEEN_B=new ImageIcon("assets/QueenB.png").getImage();
 	
+	
+	
+	//button images
+	public static final Image PLAY_BUTTON=new ImageIcon("assets/buttons/play.png").getImage();
+	public static final Image EXIT_BUTTON=new ImageIcon("assets/buttons/exit.png").getImage();
+	public static final Image SAVE_BUTTON=new ImageIcon("assets/buttons/save.png").getImage();
+	public static final Image LOAD_BUTTON=new ImageIcon("assets/buttons/load.png").getImage();
+	public static final Image CLOCKS_OFF_BUTTON=new ImageIcon("assets/buttons/clocksOff.png").getImage();
+	public static final Image CLOCKS_ON_BUTTON=new ImageIcon("assets/buttons/clocksOn.png").getImage();
+	public static final Image HUMAN_BUTTON=new ImageIcon("assets/buttons/human.png").getImage();
+	public static final Image AI_BUTTON=new ImageIcon("assets/buttons/ai.png").getImage();
+	public static final Image MAP_BUTTON=new ImageIcon("assets/buttons/map.png").getImage();
+	public static final Image NEW_BUTTON=new ImageIcon("assets/buttons/new.png").getImage();
+	public static final Image ONLINE_BUTTON=new ImageIcon("assets/buttons/online.png").getImage();
+	public static final Image TUTORIAL_BUTTON=new ImageIcon("assets/buttons/tutorial.png").getImage();
+	public static final Image MENU_BUTTON=new ImageIcon("assets/buttons/menu_button.png").getImage();
+	public static final Image CREATE_BUTTON=new ImageIcon("assets/buttons/create.png").getImage();
+	public static final Image JOIN_BUTTON=new ImageIcon("assets/buttons/join.png").getImage();	
+	public static final Image ANALYZE_BUTTON=new ImageIcon("assets/buttons/analyze.png").getImage();	
+	public static final Image COPY_BUTTON=new ImageIcon("assets/buttons/copy.png").getImage();	
+	
+	public static final Image MENU=new ImageIcon("assets/buttons/menu.png").getImage();
+	
+	public static final int BUTTON_WIDTH=PLAY_BUTTON.getWidth(null);
+	public static final int BUTTON_HEIGHT=PLAY_BUTTON.getHeight(null);
+	
 	public static final Image TEXT_BOX=new ImageIcon("assets/textbox.png").getImage();
 	public static final Image LABLE=new ImageIcon("assets/LableDR.png").getImage();
 	public static final Image LABLE_CONTINUE=new ImageIcon("assets/LableContinue.png").getImage();

@@ -29,7 +29,9 @@ public class Panel extends SPanel{
 	boolean music=true;
 	String song="For_Dee.wav";
 	ClientController controller;
-	
+	long clockTime=60000*20;
+	long bonus=3000;
+	long delay=0;
 	public static  final int sWidth=1360;
 	public static  final int sHeight=768;
 	public static  final int smidX=sWidth/2;
@@ -114,7 +116,7 @@ public class Panel extends SPanel{
 	}
 	
 	public void createGame(boolean white,long clocks) {
-		controller.createGame(white, clocks);
+		controller.createGame(white, clocks,delay,bonus);
 	}
 	
 	public void join(String code) {
@@ -188,6 +190,30 @@ public class Panel extends SPanel{
 	
 	public HyperVox getHyperVox() {
 		return (HyperVox) screens.get("hyperVox");
+	}
+	
+	public long getClockTime() {
+		return clockTime;
+	}
+	
+	public void setClockTime(long l) {
+		clockTime=l;
+	}
+	
+	public long getDelay() {
+		return delay;
+	}
+	
+	public void setDelay(long l) {
+		delay=l;
+	}
+	
+	public long getBonus() {
+		return bonus;
+	}
+	
+	public void setBonus(long i) {
+		bonus=i;
 	}
 	
 	/**

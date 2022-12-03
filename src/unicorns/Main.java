@@ -1,10 +1,12 @@
-package unicorns;
+ package unicorns;
 
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
+
+import javax.swing.JFileChooser;
 
 import gameutil.math.geom.Point;
 import gameutil.math.geom.Tuple;
@@ -21,6 +23,8 @@ public class Main {
 	public static final Random rand=new Random();
 	public static final Sounds sounds=new Sounds();
 	public static final Frame f=new Frame();
+	public static Panel panel;
+	public static final JFileChooser fc = new JFileChooser();
 	
 	public static void main(String[] unicorns) {
 		Console.s.setTitle("4d Chess Notation");
@@ -36,7 +40,7 @@ public class Main {
 		//Console.s.println(new Point(new Tuple(new double[] {2,3,1,3})).equals(new Point(new Tuple(new double[] {2,3,1,3}))));
 		f.setLocationRelativeTo(null);
 		f.setPreferredSize(new Dimension(804,654));
-		Panel panel=new Panel(f);
+		panel=new Panel(f);
 		f.add(panel);
 		
 		f.pack();
@@ -47,6 +51,7 @@ public class Main {
 		Main.sounds.playSoundOnLoop("For_Dee.wav", 0);
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
+		f.setExtendedState(Frame.MAXIMIZED_BOTH);
 		f.setTitle("4d Chess Without Multiverse Time Travel");
 		panel.setDoubleBuffered(true);
 		panel.closeOnExit();
@@ -142,6 +147,22 @@ public class Main {
 					}
 				break;
 			}
+		}
+	}
+	
+	public static File openFile() {
+		if (fc.showOpenDialog(panel)==JFileChooser.APPROVE_OPTION) {
+			return fc.getSelectedFile();
+		} else {
+			return null;
+		}
+	}
+	
+	public static File saveFile() {
+		if (fc.showSaveDialog(panel)==JFileChooser.APPROVE_OPTION) {
+			return fc.getSelectedFile();
+		} else {
+			return null;
 		}
 	}
 }
