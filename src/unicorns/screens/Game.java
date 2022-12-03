@@ -1225,7 +1225,7 @@ public class Game extends Screen{
 			long oldIndex=timeIndex;
 			timeIndex=System.currentTimeMillis();
 			
-			//3 second move increment and update clock last time before turning over to the next player
+			//update clock last time before turning over to the next player, apply bonus, and reset delay
 			if (whiteTurn) {
 				if (whiteDelay>0) {
 					whiteDelay-=timeIndex-oldIndex;
@@ -1236,6 +1236,7 @@ public class Game extends Screen{
 				} else {
 					whiteTime-=timeIndex-oldIndex;
 				}
+				whiteTime=whiteTime+bonus;
 				whiteDelay=delay;
 			} else {
 				if (blackDelay>0) {
@@ -1247,6 +1248,7 @@ public class Game extends Screen{
 				} else {
 					blackTime-=timeIndex-oldIndex;
 				}
+				blackTime=blackTime+bonus;
 				blackDelay=delay;
 			}
 			timeIndex=System.currentTimeMillis();
