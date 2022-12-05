@@ -32,6 +32,7 @@ import gameutil.math.geom.Orthotope;
 import gameutil.math.geom.Point;
 import gameutil.math.geom.Tuple;
 import gameutil.text.Console;
+import gameutil.text.Iru.Letter;
 import graphics.screen.Screen;
 import unicorns.Assets;
 import unicorns.Board;
@@ -52,6 +53,9 @@ public class Game extends Screen{
 	Rectangle board=new Rectangle(0,0,1,1);
 	Rectangle menu=new Rectangle(0,0,1,1);
 	Rectangle exit=new Rectangle(0,0,1,1);
+	Rectangle next=new Rectangle(0,0,1,1);
+	Rectangle back=new Rectangle(0,0,1,1);
+	Rectangle moveNo=new Rectangle(0,0,1,1);
 	Board b=new Board();
 	boolean wPersp=true;
 	int oldWidth=0;
@@ -474,6 +478,20 @@ public class Game extends Screen{
 					g.drawImage(promotablesB.get(r).getImage(), r.x, r.y, r.width,r.height, null);
 				}
 			}
+		} else if (state==STATE.analyze) {
+			g.setColor(Color.pink);
+			if (move>0) {
+				g.fillRoundRect(back.x, back.y,back.width,back.height, 10,10);
+				g.drawImage(Letter.LESS.img16(), back.x, back.y-2,back.width,back.height, null);
+			}
+			if (move<analyzeMoves.length) {
+				g.fillRoundRect(next.x, next.y,next.width,next.height, 10,10);
+				g.drawImage(Letter.MORE.img16(), next.x, next.y-2,next.width,next.height, null);
+			}
+			g.fillRoundRect(moveNo.x, moveNo.y, moveNo.width, moveNo.height, 20, 20);
+			g.setColor(Color.black);
+			g.drawString("Move: "+(move+1)+" / "+(analyzeMoves.length+1), moveNo.x, moveNo.y+sq);
+			g.drawString("Turn: "+((move)/2d+1)+" / "+((analyzeMoves.length)/2d+1), moveNo.x, moveNo.y+sq*2+5);
 		}
 		
 		if (showCaptures) {
@@ -663,12 +681,16 @@ public class Game extends Screen{
 			}
 			int sq4=4*sq;
 			int gap3d4=3*gap/4;
+			int midY=(int)Math.floor(observer.getHeight()/2d);
 			int offX=(int)Math.floor(observer.getWidth()/2d)-num/2;
-			int offY=(int)Math.floor(observer.getHeight()/2d)-num/2;
+			int offY=midY-num/2;
 			rects.clear();
 			board=new Rectangle(offX,offY,num,num);
 			menu=new Rectangle((int)board.getCenterX()-sq4*4,(int)board.getCenterY()-sq4*2,sq*32,sq*16);
 			exit.setLocation(menu.x+10, menu.y+10);
+			moveNo=new Rectangle(board.x+board.width,10,observer.getWidth()-(board.x+board.width),sq*2+15);
+			back=new Rectangle(board.x-32,midY-16,32,32);
+			next=new Rectangle(board.x+board.width,midY-16,32,32);
 			//menu buttons and stuff
 			for (int i=0; i<4;i++) {
 				for (int j=0; j<4;j++) {
@@ -880,7 +902,7 @@ public class Game extends Screen{
 				capture="";
 				b.undo();
 				move--;
-				Console.s.println(move+"   ::  "+analyzeMoves.length);
+				//Console.s.println(move+"   ::  "+analyzeMoves.length);
 				checkingMove=b.checkingMove(whiteTurn);
 				lastMoveChange=System.currentTimeMillis();
 			}
@@ -891,13 +913,13 @@ public class Game extends Screen{
 					capture="";
 					b.makeMove(analyzeMoves[move]);
 					Point[] ps=analyzeMoves[move].getPoints();
-					Console.s.println(Board.pointToNotation(ps[0])+"   "+Board.pointToNotation(ps[1]));
-					Console.s.println(move+"   ::  "+analyzeMoves.length);
+					//Console.s.println(Board.pointToNotation(ps[0])+"   "+Board.pointToNotation(ps[1]));
+					//Console.s.println(move+"   ::  "+analyzeMoves.length);
 					move++;
 					checkingMove=b.checkingMove(whiteTurn);
 					lastMoveChange=System.currentTimeMillis();
 				} else if (sounds&&System.currentTimeMillis()-lastMoveChange>500) {
-					Console.s.println(move+"   ::  "+analyzeMoves.length);
+					//Console.s.println(move+"   ::  "+analyzeMoves.length);
 					Main.sounds.playSound("endturn.wav", 0);
 					lastMoveChange=System.currentTimeMillis();
 				}
@@ -1072,6 +1094,24 @@ public class Game extends Screen{
 							state=STATE.detect;
 						}
 					}
+				}
+			} else if (state==STATE.analyze) {
+				if (next.contains(e.getPoint())&&move<analyzeMoves.length) {
+					capture="";
+					b.makeMove(analyzeMoves[move]);
+					Point[] ps=analyzeMoves[move].getPoints();
+					//Console.s.println(Board.pointToNotation(ps[0])+"   "+Board.pointToNotation(ps[1]));
+					//Console.s.println(move+"   ::  "+analyzeMoves.length);
+					move++;
+					checkingMove=b.checkingMove(whiteTurn);
+					lastMoveChange=System.currentTimeMillis();
+				} else if (back.contains(e.getPoint())&&move>0) {
+					capture="";
+					b.undo();
+					move--;
+					//Console.s.println(move+"   ::  "+analyzeMoves.length);
+					checkingMove=b.checkingMove(whiteTurn);
+					lastMoveChange=System.currentTimeMillis();
 				}
 			}
 			lastButtonPressed=e.getButton();
