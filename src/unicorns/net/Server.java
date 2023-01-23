@@ -6,11 +6,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import gameutil.text.Console;
 import unicorns.OnlineGame;
 
 public class Server extends net.Server{
+	
 	static CopyOnWriteArrayList<ServerController> controllers=new CopyOnWriteArrayList<>();
 	static CopyOnWriteArrayList<String> codes=new CopyOnWriteArrayList<>();
 	static CopyOnWriteArrayList<OnlineGame> games=new CopyOnWriteArrayList<>();
@@ -22,17 +21,14 @@ public class Server extends net.Server{
 	}
 
 	public static void main(String[] unicorns) {
-		Console.s.setTheme(Console.theme.shell2);
-		Console.s.setTitle("4d Chess Server");
-		Console.s.println("Server starting...");
-		Console.s.setAutoScroll(true);
+		System.out.println("Server starting...");
 		try {
 			server=new Server(new ServerSocket(25565),-1);
-			Console.s.println("Server started");
+			System.out.println("Server started");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Console.s.println("ERROR: Server failed to start.");
+			System.out.println("ERROR: Server failed to start.");
 		};
 		
 	}
@@ -43,7 +39,7 @@ public class Server extends net.Server{
 			new ServerController(s,new ObjectOutputStream(s.getOutputStream()));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			Console.s.println("IO Exception");
+			System.out.println("IO Exception");
 			e.printStackTrace();
 		}
 	}

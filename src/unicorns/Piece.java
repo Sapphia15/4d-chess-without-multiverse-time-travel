@@ -379,6 +379,24 @@ public class Piece {
 		return null;
 	}
 	
+	public Point[] getPotentialMoves(char type,Board2D bo) {
+		ArrayList<Point> moves=new ArrayList<Point>();
+		Vector vp=new Vector(pos);
+		Vector fx=new Vector(new double[] {1,0,0,0});//maybe change these to the unit vector function later
+		Vector fy=new Vector(new double[] {0,1,0,0});
+		Vector fz=new Vector(new double[] {0,0,1,0});
+		Vector fw=new Vector(new double[] {0,0,0,1});
+		
+		switch (String.valueOf(type).toUpperCase()){
+			case "P":
+				
+			break;
+		}
+		Point[] pts=new Point[moves.size()];
+		return moves.toArray(pts);
+		
+	}
+	
 	public int getX() {
 		return (int)this.pos.tuple.i(0);
 	}

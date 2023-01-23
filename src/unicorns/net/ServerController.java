@@ -4,7 +4,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Hashtable;
 
-import gameutil.text.Console;
 import net.Controller;
 import net.Request;
 import unicorns.OnlineGame;
@@ -18,8 +17,8 @@ public class ServerController extends Controller{
 	
 	public ServerController(Socket s, ObjectOutputStream out) {
 		super(s, out);
-		Console.s.println("Connected to client: "+s.getInetAddress().getHostAddress());
-		Console.s.println("ID: "+id);
+		System.out.println("Connected to client: "+s.getInetAddress().getHostAddress());
+		System.out.println("ID: "+id);
 		Request idReq=new Request("post","ID");
 		idReq.set("ID", id);
 		clientID=id;
@@ -33,15 +32,15 @@ public class ServerController extends Controller{
 			case "create":
 				if (game!=null) {
 					Server.games.remove(game);
-					Console.s.println("Game removed:\n  Code: "+game.getCode());
+					System.out.println("Game removed:\n  Code: "+game.getCode());
 				}
 				game=Server.createGame(this, (boolean) r.get("white"),(long)r.get("clocks"),(long)r.get("delay"),(long)r.get("bonus"));
 				Request codeReq=new Request("post","code");
 				codeReq.set("code", game.getCode());
 				queueProcessRequest(codeReq);
-				Console.s.println((boolean)r.get("white"));
-				Console.s.println((long) r.get("clocks"));
-				Console.s.println("Game created by client:\n     Code: "+game.getCode()+"\n     ID: "+clientID+"\n     White: "+(boolean) r.get("white")+"\n     Clocks: "+((long) r.get("clocks")));
+				System.out.println((boolean)r.get("white"));
+				System.out.println((long) r.get("clocks"));
+				System.out.println("Game created by client:\n     Code: "+game.getCode()+"\n     ID: "+clientID+"\n     White: "+(boolean) r.get("white")+"\n     Clocks: "+((long) r.get("clocks")));
 			break;
 			case "code":
 				try {
@@ -49,7 +48,7 @@ public class ServerController extends Controller{
 					boolean connected=game.connect(this);
 					Request gameReq=new Request("post","game");
 					if (connected) {
-						Console.s.println(clientID+" joined game "+game.getCode());
+						System.out.println(clientID+" joined game "+game.getCode());
 						gameReq.set("success", true);
 						boolean white=game.getPlayerID(true)==clientID;
 						gameReq.set("white", white);
@@ -70,7 +69,7 @@ public class ServerController extends Controller{
 					}
 					queueProcessRequest(gameReq);
 				} catch (Exception e) {
-					Console.s.println("Exception!");
+					System.out.println("Exception!");
 					e.printStackTrace();
 					//send error to client
 					
@@ -91,7 +90,7 @@ public class ServerController extends Controller{
 					partner=null;
 				}
 				Server.games.remove(game);
-				Console.s.println("Game removed:\n  Code: "+game.getCode());
+				System.out.println("Game removed:\n  Code: "+game.getCode());
 				game=null;
 			break;
 		}
@@ -99,14 +98,14 @@ public class ServerController extends Controller{
 	}
 	
 	public void onDisconnect() {
-		Console.s.println("ID: "+clientID+" Address: "+s.getInetAddress().getHostAddress()+" disconnected.");
+		System.out.println("ID: "+clientID+" Address: "+s.getInetAddress().getHostAddress()+" disconnected.");
 		if (partner!=null) {
 			partner.queueProcessRequest(new Request("post","disconnect"));
 			partner=null;
 		}
 		if (game!=null) {
 			Server.games.remove(game);
-			Console.s.println("Game removed:\n  Code: "+game.getCode());
+			System.out.println("Game removed:\n  Code: "+game.getCode());
 		}
 	}
 	

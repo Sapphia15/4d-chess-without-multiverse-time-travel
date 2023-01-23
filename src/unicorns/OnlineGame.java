@@ -4,7 +4,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
-import gameutil.text.Console;
 import unicorns.net.ServerController;
 
 public class OnlineGame {

@@ -1410,12 +1410,15 @@ public class Game extends Screen{
 	
 	public void importGame(File f) {
 		//file chooser to select a file
-		
+		this.setInit();
 		try {
 			analyzeMoves=b.notationToMoves(Files.readString(f.toPath(),StandardCharsets.UTF_8));
 			move=0;
 			checkingMove=null;
 			capture=null;
+			checked=false;
+			whiteTurn=true;
+			firstMove=true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

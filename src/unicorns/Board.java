@@ -282,7 +282,7 @@ public class Board {
 			notation=notation.substring(1);//remove piece type prefix
 		}
 		
-		
+		//Console.s.println(notation);
 		String[] squares=notation.split(" ");
 		if (squares.length==3) {
 			if (squares[1].startsWith("(")) {
@@ -300,15 +300,15 @@ public class Board {
 			String usquare=square.toUpperCase();
 			if (usquare.endsWith("N")||usquare.endsWith("P")||usquare.endsWith("D")||usquare.endsWith("U")||usquare.endsWith("B")||usquare.endsWith("Q")||usquare.endsWith("K")||usquare.endsWith("R")) {
 				q=square.charAt(square.length()-1);//set the promotion character
-				square=square.substring(0,square.length()-1);//remove piece promotion type
+				square=square.substring(0,square.length());//remove piece promotion type
 			}
 			if (square.endsWith("\n")) {
-				square=square.substring(0,square.length()-1);
+				square=square.substring(0,square.length());
 			}
 			if (square.endsWith("\r")) {
-				square=square.substring(0,square.length()-1);
+				square=square.substring(0,square.length());
 			}
-			//Console.s.println(square);
+			Console.s.println("< "+square+" >");
 			//convert the individual notation coords to to points that can used to make a move
 			points[i]=notationToPoint(square);
 		}
@@ -333,8 +333,10 @@ public class Board {
 			if (!line.startsWith("[")) {
 				String[] smoves=line.split("/");
 				for (String smove:smoves) {
-					moves.add(notationToMove(smove,white));
-					white=!white;
+					if (!smove.equals("")&&!smove.equals(" ")) {
+						moves.add(notationToMove(smove,white));
+						white=!white;
+					}
 				}
 			}
 		}

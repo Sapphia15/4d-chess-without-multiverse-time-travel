@@ -58,15 +58,15 @@ public class Panel extends SPanel{
 		Main.err.setVisible(true);
 		//Main.err.println("Attempting to connect to main server.");
 		//will re-add this once I have a port forwarded server
-		/*try {
-			Socket s=new Socket("68.61.11.144",25565);
+		try {
+			Socket s=new Socket("209.126.7.208",25565);
 			controller=new ClientController(s,new ObjectOutputStream(s.getOutputStream()),this);
 			Main.err.setVisible(false);
 		} catch (IOException e) {
 			Main.err.println("Failed to connect to server! Press \\ while in game to open command window.");
 			Main.err.println("Type help and press enter for help with commands.");
 			e.printStackTrace();
-		}*/
+		}
 		
 	}
 	
