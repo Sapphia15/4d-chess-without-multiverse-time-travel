@@ -341,4 +341,10 @@ public class Online extends Screen {
 		clipboard.setContents(new StringSelection(getDiscordCode()), null);
 	}
 	
+	public void setInit() {
+		observer.exitOnlineGame();
+		generated=false;
+		code="";
+	}
+	
 }

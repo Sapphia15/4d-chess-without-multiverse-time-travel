@@ -72,6 +72,7 @@ public class ClientController extends Controller {
 					observer.setClockTime((long)r.get("clocks"));
 					observer.setDelay((long)r.get("delay"));
 					observer.setBonus((long)r.get("bonus"));
+					observer.setVariant((String)r.get("variant"));
 					observer.setScreen("game");
 					
 				} else {
@@ -112,13 +113,14 @@ public class ClientController extends Controller {
 		queueProcessRequest(cReq);
 	}
 	
-	public void createGame(boolean white,long clocks,long delay,long bonus) {
+	public void createGame(boolean white,long clocks,long delay,long bonus,String variant) {
 		this.white=white;
 		Request cReq=new Request("post","create");
 		cReq.set("white",white);
 		cReq.set("clocks",clocks);
 		cReq.set("delay", delay);
 		cReq.set("bonus", bonus);
+		cReq.set("variant", variant);
 		queueProcessRequest(cReq);
 	}
 	public void exitGame() {

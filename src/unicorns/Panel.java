@@ -27,6 +27,7 @@ public class Panel extends SPanel{
 	boolean clocks=true;
 	boolean online;
 	boolean music=true;
+	String variant="standard";
 	String song="For_Dee.wav";
 	ClientController controller;
 	long clockTime=60000*20;
@@ -57,7 +58,6 @@ public class Panel extends SPanel{
 		
 		Main.err.setVisible(true);
 		//Main.err.println("Attempting to connect to main server.");
-		//will re-add this once I have a port forwarded server
 		try {
 			Socket s=new Socket("209.126.7.208",25565);
 			controller=new ClientController(s,new ObjectOutputStream(s.getOutputStream()),this);
@@ -116,7 +116,7 @@ public class Panel extends SPanel{
 	}
 	
 	public void createGame(boolean white,long clocks) {
-		controller.createGame(white, clocks,delay,bonus);
+		controller.createGame(white, clocks,delay,bonus,variant);
 	}
 	
 	public void join(String code) {
@@ -214,6 +214,14 @@ public class Panel extends SPanel{
 	
 	public void setBonus(long i) {
 		bonus=i;
+	}
+	
+	public String getVariant() {
+		return variant;
+	}
+	
+	public void setVariant(String variant) {
+		this.variant=variant;
 	}
 	
 	/**

@@ -34,7 +34,7 @@ public class ServerController extends Controller{
 					Server.games.remove(game);
 					System.out.println("Game removed:\n  Code: "+game.getCode());
 				}
-				game=Server.createGame(this, (boolean) r.get("white"),(long)r.get("clocks"),(long)r.get("delay"),(long)r.get("bonus"));
+				game=Server.createGame(this, (boolean) r.get("white"),(long)r.get("clocks"),(long)r.get("delay"),(long)r.get("bonus"),(String)r.get("variant"));
 				Request codeReq=new Request("post","code");
 				codeReq.set("code", game.getCode());
 				queueProcessRequest(codeReq);
@@ -55,6 +55,7 @@ public class ServerController extends Controller{
 						gameReq.set("clocks", game.getClockTime());
 						gameReq.set("delay", game.getDelay());
 						gameReq.set("bonus", game.getBonus());
+						gameReq.set("variant", game.getVariant());
 						if (white) {
 							partner=game.getBlack();
 						} else {
@@ -89,9 +90,11 @@ public class ServerController extends Controller{
 					partner.queueProcessRequest(new Request("post","disconnect"));
 					partner=null;
 				}
-				Server.games.remove(game);
-				System.out.println("Game removed:\n  Code: "+game.getCode());
-				game=null;
+				if (game!=null) {
+					Server.games.remove(game);
+					System.out.println("Game removed:\n  Code: "+game.getCode());
+					game=null;
+				}
 			break;
 		}
 		

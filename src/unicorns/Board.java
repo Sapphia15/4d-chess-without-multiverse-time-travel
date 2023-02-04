@@ -60,6 +60,17 @@ public class Board {
 		
 	}
 	
+	public void setUp(String variant) {
+		switch (variant) {
+			default:
+				setUp();
+			break;
+			case "all pawns are queens":
+				setUpAllPawnsAreQueens();
+			break;
+		}
+	}
+	
 	public void setUp() {
 		//reset to an empty board with default values
 		setState(new Board());
@@ -147,6 +158,95 @@ public class Board {
 		pieces.add(new Piece(new Point(new Tuple(new double[] {3,3,3,3})),'r'));
 		
 		lastState=this.clone();
+	}
+	
+	public void setUpAllPawnsAreQueens() {
+		//reset to an empty board with default values
+				setState(new Board());
+				
+				//setUpPieces
+				for (int i=0; i<4; i++) {
+					for (int k=0;k<4;k++) {
+						pieces.add(new Piece(new Point(new Tuple(new double[] {i,0,k,1})),'Q'));
+						
+						pieces.add(new Piece(new Point(new Tuple(new double[] {i,1,k,0})),'Q'));
+						
+						pieces.add(new Piece(new Point(new Tuple(new double[] {i,3,k,2})),'q'));
+						pieces.add(new Piece(new Point(new Tuple(new double[] {i,2,k,3})),'q'));
+					}
+					
+					
+				}
+				
+				pieces.remove(pieceAt(new Point(new Tuple(new double[] {1,0,1,1}))));
+				pieces.remove(pieceAt(new Point(new Tuple(new double[] {2,0,1,1}))));
+				pieces.remove(pieceAt(new Point(new Tuple(new double[] {1,0,2,1}))));
+				pieces.remove(pieceAt(new Point(new Tuple(new double[] {2,0,2,1}))));
+				
+				pieces.remove(pieceAt(new Point(new Tuple(new double[] {2,3,2,2}))));
+				pieces.remove(pieceAt(new Point(new Tuple(new double[] {1,3,2,2}))));
+				pieces.remove(pieceAt(new Point(new Tuple(new double[] {2,3,1,2}))));
+				pieces.remove(pieceAt(new Point(new Tuple(new double[] {1,3,1,2}))));
+
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,0,1,1})),'D'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,0,1,1})),'D'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,0,2,1})),'D'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,0,2,1})),'D'));
+				
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,3,2,2})),'d'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,3,2,2})),'d'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,3,1,2})),'d'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,3,1,2})),'d'));
+				
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,0,1})),'Q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,1,1})),'Q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,1,1,1})),'Q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,2,1})),'Q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,1,2,1})),'Q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,1,3,1})),'Q'));
+				
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,0,2})),'q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,1,2})),'q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,2,1,2})),'q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,2,2})),'q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,2,2,2})),'q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,2,3,2})),'q'));
+				
+				pieces.add(new Piece(new Point(new Tuple(new double[] {0,0,0,0})),'R'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,0,0,0})),'B'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,0,0,0})),'N'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {3,0,0,0})),'R'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {0,0,1,0})),'D'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,0,1,0})),'Q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,0,1,0})),'K'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {3,0,1,0})),'D'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {0,0,2,0})),'U'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,0,2,0})),'D'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,0,2,0})),'D'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {3,0,2,0})),'U'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {0,0,3,0})),'R'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,0,3,0})),'B'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,0,3,0})),'N'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {3,0,3,0})),'R'));
+				
+				pieces.add(new Piece(new Point(new Tuple(new double[] {0,3,0,3})),'r'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,3,0,3})),'b'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,3,0,3})),'n'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {3,3,0,3})),'r'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {0,3,1,3})),'d'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,3,1,3})),'q'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,3,1,3})),'k'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {3,3,1,3})),'d'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {0,3,2,3})),'u'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,3,2,3})),'d'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,3,2,3})),'d'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {3,3,2,3})),'u'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {0,3,3,3})),'r'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {1,3,3,3})),'b'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {2,3,3,3})),'n'));
+				pieces.add(new Piece(new Point(new Tuple(new double[] {3,3,3,3})),'r'));
+				
+				lastState=this.clone();
 	}
 	
 	public void setUp(Piece[] pieces) {

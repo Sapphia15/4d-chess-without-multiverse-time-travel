@@ -12,6 +12,7 @@ public class OnlineGame {
 	ServerController white;
 	ServerController black;
 	String code;
+	String variant;
 	boolean firstTurn=true;
 	long whiteTime=60000*20;
 	long blackTime=60000*20;
@@ -21,7 +22,7 @@ public class OnlineGame {
 	long delay=0;
 	long bonus=3000;
 	
-	public OnlineGame(ServerController s,boolean white,String code,long clocks,long delay,long bonus) {
+	public OnlineGame(ServerController s,boolean white,String code,long clocks,long delay,long bonus,String variant) {
 		if (white) {
 			whiteID=s.getClientID();
 			blackID=-1;
@@ -36,6 +37,7 @@ public class OnlineGame {
 		this.clocks=clocks;
 		this.delay=delay;
 		this.bonus=bonus;
+		this.variant=variant;
 		whiteTime=clocks;
 		blackTime=clocks;
 	}
@@ -99,6 +101,10 @@ public class OnlineGame {
 	
 	public ServerController getBlack() {
 		return black;
+	}
+
+	public String getVariant() {
+		return variant;
 	}
 	
 }

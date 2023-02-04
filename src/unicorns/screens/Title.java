@@ -30,8 +30,12 @@ public class Title extends Screen{
 	Rectangle moreDelay;
 	Rectangle lessBonus;
 	Rectangle moreBonus;
+	Rectangle nextVariant;
+	Rectangle lastVariant;
 	int oldWidth=0;
 	int oldHeight=0;
+	String[] variants={"standard","all pawns are queens"};
+	int variantIndex=0;
 	
 	public Title(Panel observer) {
 		this.observer=observer;
@@ -59,7 +63,8 @@ public class Title extends Screen{
 		moreDelay=new Rectangle(226,Assets.BUTTON_HEIGHT+30+16*2,16,16);
 		lessBonus=new Rectangle(100,Assets.BUTTON_HEIGHT+30+16*4,16,16);
 		moreBonus=new Rectangle(226,Assets.BUTTON_HEIGHT+30+16*4,16,16);
-		
+		lastVariant=new Rectangle(100,Assets.BUTTON_HEIGHT+30+16*6,16,16);
+		nextVariant=new Rectangle(130,Assets.BUTTON_HEIGHT+30+16*6,16,16);
 		
 		
 		online=new Rectangle(midX-100,midY-350,Assets.BUTTON_WIDTH,Assets.BUTTON_HEIGHT);
@@ -92,10 +97,12 @@ public class Title extends Screen{
 		g.drawImage(Letter.LESS.img16(),lessTime.x,lessTime.y,null);
 		g.drawImage(Letter.LESS.img16(),lessDelay.x,lessDelay.y,null);
 		g.drawImage(Letter.LESS.img16(),lessBonus.x,lessBonus.y,null);
+		g.drawImage(Letter.LESS.img16(),lastVariant.x,lastVariant.y,null);
 		
 		g.drawImage(Letter.MORE.img16(),moreTime.x,moreTime.y,null);
 		g.drawImage(Letter.MORE.img16(),moreDelay.x,moreDelay.y,null);
-		g.drawImage(Letter.MORE.img16(),moreBonus.x,moreBonus.y,null);
+		g.drawImage(Letter.MORE.img16(),moreBonus.x,moreBonus.y,null);		
+		g.drawImage(Letter.MORE.img16(),nextVariant.x,nextVariant.y,null);
 		
 		Font newFont = g.getFont().deriveFont((16f));
 		g.setFont(newFont);
@@ -114,6 +121,10 @@ public class Title extends Screen{
 		g.drawString("Delay (s)", 10, lessDelay.y+15);
 	
 		g.drawString("Bonus (s)", 10, lessBonus.y+15);
+		
+		g.drawString("Variant", 10, lastVariant.y+15);
+		
+		g.drawString(observer.getVariant(), nextVariant.x+30, nextVariant.y+15);
 		
 		
 		//g.fillRoundRect(clocks.x, clocks.y, clocks.width, clocks.height, 20, 20);
@@ -225,6 +236,19 @@ public class Title extends Screen{
 			if (observer.getBonus()<60000) {
 				observer.setBonus(observer.getBonus()+1000);
 			}
+		} else if (lastVariant.contains(e.getPoint())) {
+			variantIndex--;
+			if (variantIndex<0) {
+				variantIndex=variants.length-1;
+			}
+			observer.setVariant(variants[variantIndex]);
+			
+		} else if (nextVariant.contains(e.getPoint())) {
+			variantIndex++;
+			if (variantIndex>=variants.length) {
+				variantIndex=0;
+			}
+			observer.setVariant(variants[variantIndex]);
 		}
 	}
 	

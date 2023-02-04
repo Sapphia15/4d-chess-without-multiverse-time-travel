@@ -50,6 +50,7 @@ public class Game extends Screen{
 	Panel observer;
 	ConcurrentHashMap<Rectangle,Point> rects=new ConcurrentHashMap<>();
 	CopyOnWriteArrayList<BezierCurve> bezties=new CopyOnWriteArrayList<>();
+	BezierCurve animPath=null;
 	Rectangle board=new Rectangle(0,0,1,1);
 	Rectangle menu=new Rectangle(0,0,1,1);
 	Rectangle exit=new Rectangle(0,0,1,1);
@@ -87,6 +88,8 @@ public class Game extends Screen{
 	boolean invertMetaYW=false;
 	boolean online=false;
 	boolean showIngameMenu=false;
+	boolean showAnimation=true;
+	double animProgress=0;
 	long lastMoveChange=System.currentTimeMillis();
 	long whiteTime=60000*20;
 	long blackTime=60000*20;//20 minutes
@@ -428,7 +431,7 @@ public class Game extends Screen{
 					
 					if (p.equals(b.getGhost())&&String.valueOf(b.getSelectedPiece().getType()).toUpperCase().equals("P")) {
 						if (p.distance(b.getSelectedPiece().getPos())>1) {//make sure the pawn move is diagonal
-							g.setColor(new Color(255,0,0,100));	
+							g.setColor(new Color(255,0,0,100));
 						}
 					}
 				}
@@ -1183,7 +1186,7 @@ public class Game extends Screen{
 		whiteTurn=true;
 		firstMove=true;
 		this.online=observer.isOnline();
-		b.setUp();
+		b.setUp(observer.getVariant());
 		gameLog="";
 		//b.experimentSetUp();
 		if (observer.clocks()) {
